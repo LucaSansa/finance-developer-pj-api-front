@@ -25,7 +25,7 @@ export const Login = () => {
   });
 
   useEffect(() => {
-    if (session?.token) {
+    if (session?.access_token) {
       navigate("/dashboard", { replace: true });
     }
   }, [session, navigate]);
@@ -33,7 +33,7 @@ export const Login = () => {
   const loginMutation = useMutation({
     mutationFn: loginService.login,
     onSuccess: (data) => {
-      createSession({ token: data.token, user: data.user });
+      createSession({ access_token: data.access_token }, data.user);
       navigate("/dashboard");
     },
     onError: (err: unknown) => {

@@ -1,16 +1,16 @@
-type User = {
+export type User = {
   name: string;
   email: string;
   cnpj: string;
 };
 
 export type Session = {
-  token: string;
-  user: User;
+  access_token: string;
 };
 
 export type UseSession = {
   session: Session | null;
-  createSession: (session: Session) => void;
+  user: User | null;
+  createSession: (session: Session, user: User) => void;
   destroySession: () => void;
 };
