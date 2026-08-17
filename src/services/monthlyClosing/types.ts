@@ -20,6 +20,7 @@ export interface ExpenseType {
 
 export interface PersonalExpense {
   id: string;
+  name: string;
   description: string;
   value: number;
   expenseType: ExpenseType;

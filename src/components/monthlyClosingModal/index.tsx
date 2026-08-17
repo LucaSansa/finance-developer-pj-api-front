@@ -110,12 +110,11 @@ export function MonthlyClosingModal({ open, onClose, year, id, onError }: Props)
 
             <Divider />
 
-            <section>
-              <h2 className="text-lg font-semibold mb-4">Gastos pessoais</h2>
+            <section className="flex flex-col gap-4">
+              <h2 className="text-lg font-semibold">Gastos pessoais</h2>
               <PersonealExpensesInput addType={addExpense} />
+              <ExpensesTable expenses={expenses} onRemove={removeExpense} />
             </section>
-
-            <ExpensesTable expenses={expenses} onRemove={removeExpense} />
 
             <div className="flex justify-end gap-2">
               <button

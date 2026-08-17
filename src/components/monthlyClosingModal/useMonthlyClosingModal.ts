@@ -29,9 +29,9 @@ function toCurrencyValue(cents: number) {
   return currencyMask(String(Math.round(cents * 100)));
 }
 
-function mapApiExpenses(expenses: { description: string; value: number; expenseType: { id: string; name: string } }[]): ExpenseItem[] {
+function mapApiExpenses(expenses: { name: string; description: string; value: number; expenseType: { id: string; name: string } }[]): ExpenseItem[] {
   return expenses.map((expense) => ({
-    name: expense.description,
+    name: expense.name,
     description: expense.description,
     expenseType: expense.expenseType,
     value: toCurrencyValue(expense.value),

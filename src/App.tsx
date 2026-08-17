@@ -17,25 +17,16 @@ const queryClient = new QueryClient({
 
 function App() {
   const {createSession, user} = useSession();
-  const [ready, setReady] = useState(false)
+  // começa pronto quando não há user persistido — evita setReady síncrono no efeito
+  const [ready, setReady] = useState(() => !user);
 
+  useEffect(() => {
+    if (!user) return;
 
-    useEffect(() => {
     authRefreshService
       .refresh()
       .then((data) => {
-        // busca os dados do usuário com o novo token
-        // let acess_token = session?.access_token;
-
-        return createSession({access_token: data.access_token}, user!)
-        
-        // return api
-        //   .get("/auth/me", {
-        //     headers: { Authorization: `Bearer ${data.access_token}` },
-        //   })
-        //   .then((res) => {
-        //     createSession({ acess_token: data.access_token }, res.data);
-        //   });
+        createSession({ access_token: data.access_token }, user!);
       })
       .catch(() => {
         // cookie ausente ou expirado — usuário precisará fazer login
