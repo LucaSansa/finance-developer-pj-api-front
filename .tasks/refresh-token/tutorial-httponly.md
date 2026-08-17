@@ -91,23 +91,24 @@ Access-Control-Allow-Origin: https://seu-frontend.com  ← origem exata, nunca *
 
 **`src/stores/session/types.ts`**
 
-`refreshToken` sai do tipo — o browser gerencia.
+`Session` passa a ter apenas o token. `user` sobe para campo próprio em `UseSession`,
+permitindo que o store persista `user` sem tocar em `Session`.
 
 ```ts
-type User = {
+export type User = {
   name: string;
   email: string;
   cnpj: string;
 };
 
 export type Session = {
-  accessToken: string;
-  user: User;
+  acess_token: string;
 };
 
 export type UseSession = {
   session: Session | null;
-  createSession: (session: Session) => void;
+  user: User | null;
+  createSession: (session: Session, user: User) => void;
   destroySession: () => void;
 };
 ```
@@ -116,19 +117,34 @@ export type UseSession = {
 
 **`src/stores/session/index.ts`**
 
-`accessToken` permanece em memória (sem persist). `user` pode ser persistido
-com `partialize` se quiser manter nome/email após F5.
+`session` (que contém o token) fica fora do `partialize` — nunca vai para storage.
+`user` é persistido separadamente via `partialize`, mantendo nome/email após F5.
 
 ```ts
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { UseSession } from "./types";
 
-export const useSession = create<UseSession>()((set) => ({
-  session: null,
-  createSession: (session) => set({ session }),
-  destroySession: () => set({ session: null }),
-}));
+export const useSession = create<UseSession>()(
+  persist(
+    (set) => ({
+      session: null,
+      user: null,
+      createSession: (session, user) => set({ session, user }),
+      destroySession: () => set({ session: null, user: null }),
+    }),
+    {
+      name: "session-user",
+      // só `user` persiste — acess_token fica apenas em memória
+      partialize: (state) => ({ user: state.user }),
+    }
+  )
+);
 ```
+
+> O `partialize` resolve o conflito de tipos: `Session` exige `acess_token`,
+> mas o que seria persistido não teria o token. Separando `user` em campo próprio,
+> o `partialize` devolve `{ user }` que é um tipo simples sem conflito.
 
 ### 2.3 — Serviço de refresh
 
@@ -167,7 +183,7 @@ export const authRefreshService = {
 Diferenças em relação ao tutorial anterior:
 - `withCredentials: true` na instância principal (para o login receber o cookie)
 - Sem verificação de `refreshToken` em memória (não existe mais)
-- `createSession` recebe apenas `accessToken` + `user`
+- `createSession` recebe dois argumentos: `session` e `user` separados
 
 ```ts
 import axios, { type AxiosRequestConfig } from "axios";
@@ -205,8 +221,8 @@ function processQueue(error: unknown, token: string | null) {
 api.interceptors.request.use(
   (config) => {
     const { session } = useSession.getState();
-    if (session?.accessToken) {
-      config.headers.Authorization = `Bearer ${session.accessToken}`;
+    if (session?.acess_token) {
+      config.headers.Authorization = `Bearer ${session.acess_token}`;
     }
     return config;
   },
@@ -220,7 +236,7 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    const { session, createSession, destroySession } = useSession.getState();
+    const { session, user, createSession, destroySession } = useSession.getState();
 
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
@@ -246,10 +262,7 @@ api.interceptors.response.use(
       // cookie httpOnly é enviado automaticamente, sem passar nada no body
       const data = await authRefreshService.refresh();
 
-      createSession({
-        accessToken: data.access_token,
-        user: session!.user,
-      });
+      createSession({ acess_token: data.access_token }, user!);
 
       processQueue(null, data.access_token);
 
@@ -306,16 +319,13 @@ export const loginService = {
 ```ts
 // onSuccess:
 onSuccess: (data) => {
-  createSession({
-    accessToken: data.access_token,
-    user: data.user,
-  });
+  createSession({ acess_token: data.access_token }, data.user);
   navigate("/dashboard");
 },
 
 // useEffect guard:
 useEffect(() => {
-  if (session?.accessToken) {
+  if (session?.acess_token) {
     navigate("/dashboard", { replace: true });
   }
 }, [session, navigate]);
@@ -324,7 +334,7 @@ useEffect(() => {
 ### 2.7 — ProtectedRoute.tsx
 
 ```ts
-if (!session?.accessToken) {
+if (!session?.acess_token) {
   return <Navigate to="/login" replace />;
 }
 ```
@@ -363,7 +373,7 @@ navigate("/login");
 
 ## 3. Silent refresh na inicialização (opcional mas recomendado)
 
-Quando o usuário recarrega a página (F5), o `accessToken` em memória é perdido,
+Quando o usuário recarrega a página (F5), o `acess_token` em memória é perdido,
 mas o cookie httpOnly ainda existe. É possível restaurar a sessão silenciosamente:
 
 **`src/App.tsx`** (ou no provider raiz)
@@ -388,7 +398,7 @@ export function App() {
             headers: { Authorization: `Bearer ${data.access_token}` },
           })
           .then((res) => {
-            createSession({ accessToken: data.access_token, user: res.data });
+            createSession({ acess_token: data.access_token }, res.data);
           });
       })
       .catch(() => {
@@ -418,7 +428,7 @@ Browser                         Frontend JS                     Backend
   │◄── Set-Cookie: refresh_token ────│◄─────────────────────────────│
   │    (httpOnly, JS não lê)         │    { access_token, user }    │
   │                                  │                              │
-  │    [cookie guardado no browser]  │  accessToken → memória JS    │
+  │    [cookie guardado no browser]  │  acess_token → memória JS    │
   │                                  │                              │
   │── POST /api/qualquer ───────────►│── Authorization: Bearer ─────►│
   │                                  │                              │
@@ -429,7 +439,7 @@ Browser                         Frontend JS                     Backend
   │    pelo browser, sem JS tocar)   │◄── { access_token } ─────────│
   │◄── Set-Cookie: refresh_token novo│◄── Set-Cookie: novo cookie ──│
   │                                  │                              │
-  │                                  │  novo accessToken → memória  │
+  │                                  │  novo acess_token → memória  │
   │                                  │  retenta request original    │
   │                                  │──────────────────────────────►│
 ```

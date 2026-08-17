@@ -6,12 +6,16 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { useSession } from "../../stores/session";
+
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
+
+import { authLogoutService } from "../../services/auth/logout";
+import { useSession } from "../../stores/session";
+
 export function Header() {
-  const { destroySession } = useSession();
+  const { destroySession } = useSession.getState();
   const navigate = useNavigate();
 
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
@@ -59,7 +63,8 @@ export function Header() {
                 <Typography sx={{ textAlign: "center" }}>Profile</Typography>
               </MenuItem>
               <MenuItem
-                onClick={() => {
+                onClick={async () => {
+                  await authLogoutService.logout();
                   destroySession();
                   navigate("/login");
                 }}

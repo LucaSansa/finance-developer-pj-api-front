@@ -11,7 +11,7 @@ export interface LoginResponse {
     cnpj: string;
     email: string;
   };
-  token: string;
+  access_token: string;
 }
 
 export const loginService = {

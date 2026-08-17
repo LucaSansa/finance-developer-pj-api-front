@@ -8,9 +8,9 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { session } = useSession();
 
-  if (!session?.token) {
-    return <Navigate to="/login" replace />;
-  }
+if (!session?.access_token) {
+  return <Navigate to="/login" replace />;
+}
 
   return <>{children}</>;
 };
