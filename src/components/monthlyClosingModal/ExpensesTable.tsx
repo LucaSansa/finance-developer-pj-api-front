@@ -10,7 +10,7 @@ export function ExpensesTable({ expenses, onRemove }: Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+      <p className="text-xs font-medium text-ink-faint uppercase tracking-wide">
         Gastos adicionados ({expenses.length})
       </p>
 
@@ -18,24 +18,24 @@ export function ExpensesTable({ expenses, onRemove }: Props) {
         {expenses.map((expense, index) => (
           <div
             key={index}
-            className="border border-gray-200 rounded-lg px-4 py-3 bg-white hover:bg-gray-50 transition-colors"
+            className="border border-line-soft rounded-control px-4 py-3 bg-surface hover:border-line transition-colors"
           >
             {/* Linha superior: nome + valor + botão */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
-                <span className="text-base font-semibold text-gray-800">{expense.name}</span>
-                <span className="text-sm text-blue-600 bg-blue-50 px-2 py-0.5 rounded shrink-0">
+                <span className="text-sm font-semibold text-ink">{expense.name}</span>
+                <span className="text-xs text-brand bg-brand-soft px-2 py-0.5 rounded-full shrink-0">
                   {expense.expenseType.name}
                 </span>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-base font-semibold text-gray-800">{expense.value}</span>
+                <span className="text-sm font-semibold text-ink tabular-nums">{expense.value}</span>
                 <button
                   type="button"
                   onClick={() => onRemove(index)}
                   title="Remover gasto"
-                  className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-full text-ink-muted hover:text-expense hover:bg-expense-soft transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -46,7 +46,7 @@ export function ExpensesTable({ expenses, onRemove }: Props) {
 
             {/* Linha inferior: descrição */}
             {expense.description && (
-              <p className="text-sm text-gray-400 mt-1 break-words">{expense.description}</p>
+              <p className="text-sm text-ink-faint mt-1 break-words">{expense.description}</p>
             )}
           </div>
         ))}

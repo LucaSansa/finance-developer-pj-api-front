@@ -17,7 +17,7 @@ import { useSession } from "../../stores/session";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 
 export function Header() {
-  const { destroySession } = useSession.getState();
+  const { destroySession, user } = useSession();
   const navigate = useNavigate();
 
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
@@ -31,18 +31,26 @@ export function Header() {
   };
 
   return (
-    <header className="bg-gray-300 shadow-sm ">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <h1 className="text-xl font-semibold text-gray-900">
-              Finance Developer
-            </h1>
+    <header className="border-b border-line-soft bg-canvas">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12">
+        <div className="flex justify-between items-center h-18 py-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-control bg-brand text-white flex items-center justify-center font-bold text-sm shrink-0">
+              FD
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-sm font-semibold text-ink">Finance Developer</span>
+              <span className="text-xs text-ink-faint">Gestão financeira PJ</span>
+            </div>
           </div>
 
           <Box sx={{ flexGrow: 0 }}>
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="Remy Sharp" />
+              <Avatar
+                sx={{ bgcolor: "var(--color-brand)", width: 38, height: 38, fontSize: 15 }}
+              >
+                {user?.name?.charAt(0).toUpperCase() ?? "U"}
+              </Avatar>
             </IconButton>
 
             <Menu
@@ -60,10 +68,23 @@ export function Header() {
               }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
+              slotProps={{
+                paper: {
+                  sx: {
+                    borderRadius: "0.75rem",
+                    boxShadow: "var(--shadow-panel)",
+                    border: "1px solid var(--color-line-soft)",
+                  },
+                },
+              }}
             >
-              <MenuItem onClick={() => {}}>
-                <Typography sx={{ textAlign: "center" }}>Profile</Typography>
-              </MenuItem>
+              {user?.name && (
+                <MenuItem disabled sx={{ opacity: "1 !important" }}>
+                  <Typography sx={{ textAlign: "center", fontWeight: 600, color: "var(--color-ink)" }}>
+                    {user.name}
+                  </Typography>
+                </MenuItem>
+              )}
               <MenuItem
                 onClick={async () => {
                   try {
@@ -76,7 +97,7 @@ export function Header() {
                   }
                 }}
               >
-                <Typography sx={{ textAlign: "center" }}>Logout</Typography>
+                <Typography sx={{ textAlign: "center", color: "var(--color-expense)" }}>Sair</Typography>
               </MenuItem>
             </Menu>
           </Box>

@@ -1,6 +1,49 @@
 @import "tailwindcss";
 
+/* Sistema de tokens — metáfora de livro-caixa: canvas/papel, tinta, linhas pautadas */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-canvas: #f7f5f1;
+  --color-canvas-raised: #fbfaf7;
+  --color-surface: #ffffff;
+  --color-surface-inset: #f0ede6;
+
+  --color-ink: #1c1a17;
+  --color-ink-soft: #55504a;
+  --color-ink-faint: #8a8377;
+  --color-ink-muted: #b7b0a3;
+
+  --color-line-soft: rgba(28, 26, 23, 0.06);
+  --color-line: rgba(28, 26, 23, 0.1);
+  --color-line-strong: rgba(28, 26, 23, 0.2);
+
+  --color-brand-soft: #eeedfb;
+  --color-brand: #4f46c0;
+  --color-brand-strong: #3d3699;
+
+  --color-income: #1f9d63;
+  --color-income-soft: #e7f7ee;
+
+  --color-expense: #c6415a;
+  --color-expense-soft: #fbeaee;
+
+  --color-tax: #b87f1a;
+  --color-tax-soft: #faf0dc;
+
+  --radius-control: 0.625rem;
+  --radius-card: 1.125rem;
+  --radius-panel: 1.5rem;
+
+  --shadow-card: 0 1px 2px rgba(28, 26, 23, 0.04), 0 10px 24px -14px rgba(28, 26, 23, 0.16);
+  --shadow-card-hover: 0 2px 4px rgba(28, 26, 23, 0.05), 0 18px 32px -14px rgba(28, 26, 23, 0.2);
+  --shadow-panel: 0 24px 48px -16px rgba(28, 26, 23, 0.28);
+}
+
 body {
   margin: 0;
   min-height: 100vh;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
 }

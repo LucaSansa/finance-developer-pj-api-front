@@ -1,5 +1,6 @@
-import { Divider } from "@mui/material";
-import { formatDateBR } from "../../utils/formatDateBR";
+import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL";
+import { months } from "../../utils/months";
+import { BalanceBar } from "../balanceBar";
 
 interface personalExpenseRegister {
   id: string;
@@ -22,6 +23,12 @@ interface montCardProps {
   onClick?: () => void;
 }
 
+function formatMonthLabel(closingDate: string) {
+  const [year, month] = closingDate.split("-");
+  const label = months.find((m) => m.value === month)?.label ?? month;
+  return `${label} ${year}`;
+}
+
 export const MonthCard = ({
   closingDate,
   ammountCollected,
@@ -36,108 +43,84 @@ export const MonthCard = ({
     (acc, curr) => acc + curr.value,
     0
   );
+  const operationalTotal = accountFee + individualContribuition + totalInvoiceTax;
+  const remaining = ammountCollected - (operationalTotal + totalPersonalExpense);
 
   return (
-    <div
-      className="w-full bg-gray-300 rounded-2xl px-4 py-4 cursor-pointer hover:bg-gray-400 transition-colors"
+    <button
+      type="button"
       onClick={onClick}
+      className="w-full text-left bg-surface border border-line-soft rounded-card shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 p-5 flex flex-col gap-5 cursor-pointer"
     >
-      <div className="flex justify-between items-center">
-        <h1>Mês de fechamento</h1>
-        <h1>{formatDateBR(closingDate)}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col">
+          <span className="text-xs font-medium text-ink-faint uppercase tracking-wide">
+            Fechamento
+          </span>
+          <span className="text-base font-semibold text-ink capitalize">
+            {formatMonthLabel(closingDate)}
+          </span>
+        </div>
+        <span
+          className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${
+            isClosing ? "bg-line-soft text-ink-faint" : "bg-income-soft text-income"
+          }`}
+        >
+          {isClosing ? "Fechado" : "Aberto"}
+        </span>
       </div>
 
-      <Divider
-        style={{
-          marginTop: "4px",
-          marginBottom: "4px",
-        }}
+      <div className="flex flex-col gap-1">
+        <span className="text-xs font-medium text-ink-faint">Valor arrecadado</span>
+        <span className="text-3xl font-semibold text-ink tabular-nums tracking-tight">
+          {formatCurrencyBRL(ammountCollected)}
+        </span>
+      </div>
+
+      <BalanceBar
+        collected={ammountCollected}
+        segments={[
+          {
+            key: "operacional",
+            label: "Operacional",
+            value: operationalTotal,
+            trackClass: "bg-tax",
+            dotClass: "bg-tax",
+          },
+          {
+            key: "despesas",
+            label: "Despesas pessoais",
+            value: totalPersonalExpense,
+            trackClass: "bg-expense",
+            dotClass: "bg-expense",
+          },
+        ]}
       />
 
-      <div className="flex justify-between items-center">
-        <h1>Valor Arrecadado</h1>
-        <h1>R$ {ammountCollected.toFixed(2)}</h1>
+      <div className="grid grid-cols-3 gap-3 pt-4 border-t border-line">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[11px] font-medium text-ink-faint">Operacional</span>
+          <span className="text-sm font-semibold text-ink tabular-nums">
+            {formatCurrencyBRL(operationalTotal)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[11px] font-medium text-ink-faint">Despesas</span>
+          <span className="text-sm font-semibold text-ink tabular-nums">
+            {formatCurrencyBRL(totalPersonalExpense)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[11px] font-medium text-ink-faint">Saldo</span>
+          <span
+            className={`text-sm font-semibold tabular-nums ${
+              remaining < 0 ? "text-expense" : "text-income"
+            }`}
+          >
+            {formatCurrencyBRL(remaining)}
+          </span>
+        </div>
       </div>
-
-      <Divider
-        style={{
-          marginTop: "4px",
-          marginBottom: "4px",
-        }}
-      />
-
-      <div className="flex justify-between items-center">
-        <h1>Operacional PJ</h1>
-        <h1>
-          R${" "}
-          {(accountFee + individualContribuition + totalInvoiceTax).toFixed(2)}
-        </h1>
-      </div>
-
-      <Divider
-        style={{
-          marginTop: "4px",
-          marginBottom: "4px",
-        }}
-      />
-
-      <div className="flex justify-between items-center">
-        <h1>Despesas Pessoais</h1>
-        <h1>R$ {totalPersonalExpense.toFixed(2)}</h1>
-      </div>
-
-      <Divider
-        style={{
-          marginTop: "4px",
-          marginBottom: "4px",
-        }}
-      />
-
-      <div className="flex justify-between items-center">
-        <h1>Despesa total</h1>
-        <h1>
-          R${" "}
-          {(
-            accountFee +
-            individualContribuition +
-            totalInvoiceTax +
-            totalPersonalExpense
-          ).toFixed(2)}
-        </h1>
-      </div>
-
-      <Divider
-        style={{
-          marginTop: "4px",
-          marginBottom: "4px",
-        }}
-      />
-
-      <div className="flex justify-between items-center">
-        <h1>Total restante</h1>
-        <h1>
-          R${" "}
-          {(
-            ammountCollected -
-            (accountFee +
-              individualContribuition +
-              totalInvoiceTax +
-              totalPersonalExpense)
-          ).toFixed(2)}
-        </h1>
-      </div>
-
-      <Divider
-        style={{
-          marginTop: "4px",
-          marginBottom: "4px",
-        }}
-      />
-
-      <div className="flex justify-between items-center">
-        <h1>Status</h1>
-        <h1>{isClosing ? "Fechado" : "Aberto"}</h1>
-      </div>
-    </div>
+    </button>
   );
 };

@@ -105,15 +105,14 @@ export function useMonthlyClosingModal({ year, id, onClose, onError }: Options) 
     onClose();
   }
 
-  const amountCollected = useMemo(
-    () =>
-      toCurrencyValue(
-        invoices.reduce((total, invoice) => total + convertCurrencyToNumber(invoice.value), 0)
-      ),
+  const amountCollectedValue = useMemo(
+    () => invoices.reduce((total, invoice) => total + convertCurrencyToNumber(invoice.value), 0),
     [invoices]
   );
+  const amountCollected = toCurrencyValue(amountCollectedValue);
 
-  const totalInvoiceTax = toCurrencyValue(closingData?.operacionalPj?.totalInvoiceTax ?? 0);
+  const totalInvoiceTaxValue = closingData?.operacionalPj?.totalInvoiceTax ?? 0;
+  const totalInvoiceTax = toCurrencyValue(totalInvoiceTaxValue);
 
   const handleSubmit = form.handleSubmit((data) => {
     const payload = {
@@ -177,7 +176,9 @@ export function useMonthlyClosingModal({ year, id, onClose, onError }: Options) 
     addInvoice,
     removeInvoice,
     amountCollected,
+    amountCollectedValue,
     totalInvoiceTax,
+    totalInvoiceTaxValue,
     handleSubmit,
     handleCancel,
     isPending,

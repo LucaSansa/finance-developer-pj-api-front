@@ -18,7 +18,7 @@ export type SelectProps = HTMLAttributes<HTMLDivElement> & {
 export const Select = forwardRef<HTMLDivElement, SelectProps>(
   (
     { error, options, value, onChange, initialLabel, className, ...props },
-    
+    ref
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -52,21 +52,28 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
     return (
       <div
-        ref={containerRef}
-        className={mergeClassnames("flex flex-col gap-2 relative", className)}
+        ref={(node) => {
+          containerRef.current = node;
+          if (typeof ref === "function") ref(node);
+          else if (ref) ref.current = node;
+        }}
+        className={mergeClassnames("flex flex-col gap-1.5 relative", className)}
         {...props}
       >
         {/* Input custom */}
         <div
           className={mergeClassnames(
-            "h-12.5 border border-[#D7DBE4] px-5 pr-5 text-[18px] py-2.5 font-normal bg-white cursor-pointer flex items-center justify-between"
+            "h-11 rounded-control border px-3.5 text-sm font-normal bg-surface cursor-pointer flex items-center justify-between transition-colors",
+            error ? "border-expense" : isOpen ? "border-brand ring-2 ring-brand/30" : "border-line"
           )}
           onClick={() => setIsOpen((prev) => !prev)}
         >
-          <span className="truncate">{selected?.label || initialLabel}</span>
+          <span className={mergeClassnames("truncate", !selected && "text-ink-muted")}>
+            {selected?.label || initialLabel}
+          </span>
           <svg
             className={mergeClassnames(
-              "w-5 h-5 text-gray-700 transition-transform duration-200",
+              "w-4 h-4 text-ink-faint transition-transform duration-200 shrink-0",
               isOpen ? "rotate-180" : "rotate-0"
             )}
             fill="none"
@@ -84,13 +91,14 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
         {/* Dropdown */}
         {isOpen && (
-          // <ul className="absolute w-full border border-[#D7DBE4] bg-white mt-13 z-10 max-h-60 overflow-auto shadow-md">
-
-          <ul className="absolute min-w-full w-max border border-[#D7DBE4] bg-white mt-13 z-10 max-h-60 overflow-auto shadow-md">
+          <ul className="absolute top-full mt-1.5 min-w-full w-max border border-line-soft rounded-control bg-surface z-10 max-h-60 overflow-auto shadow-panel py-1">
             {options.map((option) => (
               <li
                 key={option.value}
-                className="px-5 py-2 cursor-pointer hover:bg-gray-100"
+                className={mergeClassnames(
+                  "px-3.5 py-2 text-sm cursor-pointer hover:bg-brand-soft hover:text-brand transition-colors",
+                  option.value === value && "bg-brand-soft text-brand font-medium"
+                )}
                 onClick={() => handleSelect(option)}
               >
                 {option.label}
@@ -101,7 +109,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
         {/* Erro */}
         {error && (
-          <span className="text-red-500 text-[max(12px, 0.78em)]">{error}</span>
+          <span className="text-xs text-expense">{error}</span>
         )}
       </div>
     );

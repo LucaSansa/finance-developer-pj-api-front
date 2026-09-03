@@ -79,9 +79,9 @@ export const SearchableSelect = forwardRef<HTMLDivElement, SearchableSelectProps
         <div
           onClick={handleOpen}
           className={mergeClassnames(
-            "h-10 border rounded-md px-3 bg-white flex items-center justify-between cursor-pointer gap-2 text-sm",
-            error ? "border-red-400" : "border-gray-300",
-            isOpen && "ring-2 ring-blue-500 border-blue-500"
+            "h-11 rounded-control border px-3.5 bg-surface flex items-center justify-between cursor-pointer gap-2 text-sm transition-colors",
+            error ? "border-expense" : "border-line",
+            isOpen && "ring-2 ring-brand/30 border-brand"
           )}
         >
           {isOpen ? (
@@ -91,10 +91,10 @@ export const SearchableSelect = forwardRef<HTMLDivElement, SearchableSelectProps
               onChange={(e) => setQuery(e.target.value)}
               onClick={(e) => e.stopPropagation()}
               placeholder="Buscar tipo..."
-              className="flex-1 outline-none text-sm bg-transparent"
+              className="flex-1 outline-none text-sm bg-transparent text-ink"
             />
           ) : (
-            <span className={mergeClassnames("flex-1 truncate", !selected && "text-gray-400")}>
+            <span className={mergeClassnames("flex-1 truncate", !selected && "text-ink-muted")}>
               {selected?.label ?? placeholder}
             </span>
           )}
@@ -104,7 +104,7 @@ export const SearchableSelect = forwardRef<HTMLDivElement, SearchableSelectProps
               <button
                 type="button"
                 onClick={handleClear}
-                className="text-gray-400 hover:text-gray-600 leading-none"
+                className="text-ink-faint hover:text-ink leading-none"
                 tabIndex={-1}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +113,7 @@ export const SearchableSelect = forwardRef<HTMLDivElement, SearchableSelectProps
               </button>
             )}
             <svg
-              className={mergeClassnames("w-4 h-4 text-gray-500 transition-transform duration-200", isOpen && "rotate-180")}
+              className={mergeClassnames("w-4 h-4 text-ink-faint transition-transform duration-200", isOpen && "rotate-180")}
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -123,17 +123,17 @@ export const SearchableSelect = forwardRef<HTMLDivElement, SearchableSelectProps
 
         {/* Dropdown */}
         {isOpen && (
-          <ul className="absolute top-full mt-1 left-0 min-w-full w-max z-20 bg-white border border-gray-200 rounded-md shadow-lg max-h-52 overflow-auto">
+          <ul className="absolute top-full mt-1.5 left-0 min-w-full w-max z-20 bg-surface border border-line-soft rounded-control shadow-panel max-h-52 overflow-auto py-1">
             {filtered.length === 0 ? (
-              <li className="px-3 py-2 text-sm text-gray-400">Nenhum resultado</li>
+              <li className="px-3.5 py-2 text-sm text-ink-muted">Nenhum resultado</li>
             ) : (
               filtered.map((option) => (
                 <li
                   key={option.value}
                   onClick={() => handleSelect(option)}
                   className={mergeClassnames(
-                    "px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 hover:text-blue-700",
-                    option.value === value && "bg-blue-100 text-blue-700 font-medium"
+                    "px-3.5 py-2 text-sm cursor-pointer hover:bg-brand-soft hover:text-brand transition-colors",
+                    option.value === value && "bg-brand-soft text-brand font-medium"
                   )}
                 >
                   {option.label}
@@ -143,7 +143,7 @@ export const SearchableSelect = forwardRef<HTMLDivElement, SearchableSelectProps
           </ul>
         )}
 
-        {error && <span className="text-red-500 text-xs">{error}</span>}
+        {error && <span className="text-xs text-expense">{error}</span>}
       </div>
     );
   }
