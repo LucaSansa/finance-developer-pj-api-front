@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { currencyMask } from "../../utils/masks";
 import { convertCurrencyToNumber } from "../../utils/convertCurrencyToNumber";
 import { monthlyClosingSchema } from "../../utils/schemas/monthlyClosingSchema";
 import { useCreateMonthlyClosing, useGetOneMonthlyClosing, useUpdateMonthlyClosing } from "../../services/monthlyClosing";
-import type { ExpenseItem } from "./types";
+import type { ExpenseItem, InvoiceItem } from "./types";
 import type * as yup from "yup";
 
 type FormData = yup.InferType<typeof monthlyClosingSchema>;
@@ -19,10 +19,8 @@ type Options = {
 
 const DEFAULT_VALUES: FormData = {
   closingDate: "",
-  amountCollected: "",
   accountFee: "",
   individualContribution: "",
-  totalInvoiceTax: "",
 };
 
 function toCurrencyValue(cents: number) {
@@ -35,6 +33,13 @@ function mapApiExpenses(expenses: { name: string; description: string; value: nu
     description: expense.description,
     expenseType: expense.expenseType,
     value: toCurrencyValue(expense.value),
+  }));
+}
+
+function mapApiInvoices(invoices: { id: string; value: number }[]): InvoiceItem[] {
+  return invoices.map((invoice) => ({
+    id: invoice.id,
+    value: toCurrencyValue(invoice.value),
   }));
 }
 
@@ -54,24 +59,27 @@ export function useMonthlyClosingModal({ year, id, onClose, onError }: Options) 
 
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
   const [initialExpenses, setInitialExpenses] = useState<ExpenseItem[]>([]);
+  const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
+  const [initialInvoices, setInitialInvoices] = useState<InvoiceItem[]>([]);
   const [loadedId, setLoadedId] = useState<string | null>(null);
 
-  // Sync expenses during render when API data arrives for a new id
+  // Sync expenses/invoices during render when API data arrives for a new id
   if (id && closingData && loadedId !== id) {
     setLoadedId(id);
-    const mapped = mapApiExpenses(closingData.personalExpense);
-    setExpenses(mapped);
-    setInitialExpenses(mapped);
+    const mappedExpenses = mapApiExpenses(closingData.personalExpense);
+    setExpenses(mappedExpenses);
+    setInitialExpenses(mappedExpenses);
+    const mappedInvoices = mapApiInvoices(closingData.operacionalPj?.invoice ?? []);
+    setInvoices(mappedInvoices);
+    setInitialInvoices(mappedInvoices);
   }
 
   useEffect(() => {
     if (closingData && id) {
       reset({
         closingDate: closingData.closingDate.split("-")[1],
-        amountCollected: toCurrencyValue(closingData.amountCollected),
         accountFee: toCurrencyValue(closingData.operacionalPj?.accountFee ?? 0),
         individualContribution: toCurrencyValue(closingData.operacionalPj?.individualContribution ?? 0),
-        totalInvoiceTax: toCurrencyValue(closingData.operacionalPj?.totalInvoiceTax ?? 0),
       });
     }
   }, [closingData, id, reset]);
@@ -87,6 +95,8 @@ export function useMonthlyClosingModal({ year, id, onClose, onError }: Options) 
     reset();
     setExpenses([]);
     setInitialExpenses([]);
+    setInvoices([]);
+    setInitialInvoices([]);
     setLoadedId(null);
   }
 
@@ -95,14 +105,25 @@ export function useMonthlyClosingModal({ year, id, onClose, onError }: Options) 
     onClose();
   }
 
+  const amountCollected = useMemo(
+    () =>
+      toCurrencyValue(
+        invoices.reduce((total, invoice) => total + convertCurrencyToNumber(invoice.value), 0)
+      ),
+    [invoices]
+  );
+
+  const totalInvoiceTax = toCurrencyValue(closingData?.operacionalPj?.totalInvoiceTax ?? 0);
+
   const handleSubmit = form.handleSubmit((data) => {
     const payload = {
       closingDate: `${year}-${data.closingDate}-01`,
-      amountCollected: convertCurrencyToNumber(data.amountCollected),
       operacionalPj: {
         accountFee: convertCurrencyToNumber(data.accountFee),
         individualContribution: convertCurrencyToNumber(data.individualContribution),
-        totalInvoiceTax: convertCurrencyToNumber(data.totalInvoiceTax),
+        invoice: invoices.map((invoice) => ({
+          value: convertCurrencyToNumber(invoice.value),
+        })),
       },
       personalExpense: expenses.map((expense) => ({
         name: expense.name,
@@ -135,8 +156,16 @@ export function useMonthlyClosingModal({ year, id, onClose, onError }: Options) 
   const removeExpense = (index: number) =>
     setExpenses((prev) => prev.filter((_, i) => i !== index));
 
+  const addInvoice = (invoice: InvoiceItem) =>
+    setInvoices((prev) => [...prev, invoice]);
+
+  const removeInvoice = (index: number) =>
+    setInvoices((prev) => prev.filter((_, i) => i !== index));
+
   const hasChanges =
-    isDirty || JSON.stringify(expenses) !== JSON.stringify(initialExpenses);
+    isDirty ||
+    JSON.stringify(expenses) !== JSON.stringify(initialExpenses) ||
+    JSON.stringify(invoices) !== JSON.stringify(initialInvoices);
 
   return {
     control,
@@ -144,6 +173,11 @@ export function useMonthlyClosingModal({ year, id, onClose, onError }: Options) 
     expenses,
     addExpense,
     removeExpense,
+    invoices,
+    addInvoice,
+    removeInvoice,
+    amountCollected,
+    totalInvoiceTax,
     handleSubmit,
     handleCancel,
     isPending,

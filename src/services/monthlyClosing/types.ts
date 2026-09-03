@@ -26,11 +26,17 @@ export interface PersonalExpense {
   expenseType: ExpenseType;
 }
 
+export interface Invoice {
+  id: string;
+  value: number;
+}
+
 export interface OperacionalPj {
   id: string;
   accountFee: number;
   individualContribution: number;
   totalInvoiceTax: number;
+  invoice: Invoice[];
 }
 
 export interface MonthlyClosing {
@@ -47,22 +53,17 @@ export interface MonthlyClosingResponse {
   pagination: Pagination;
 }
 
-// export interface CreateMonthlyClosing {
-//   closingDate: string;
-//   amountCollected: number;
-//   operacionalPj: OperacionalPj | null;
-//   personalExpense: PersonalExpense[] | [];
-// }
 export interface CreateMonthlyClosing {
   closingDate: string;
-  amountCollected: number;
+  isClosing?: boolean;
   operacionalPj?: {
-    accountFee: number;
-    individualContribution: number;
-    totalInvoiceTax: number;
+    accountFee?: number;
+    individualContribution?: number;
+    invoice?: { value: number }[];
   };
   personalExpense?: {
-    description: string;
+    name: string;
+    description?: string;
     value: number;
     expenseTypeId: string;
   }[];
@@ -70,15 +71,15 @@ export interface CreateMonthlyClosing {
 
 export interface UpdateMonthlyClosing {
   closingDate?: string;
-  amountCollected?: number;
   isClosing?: boolean;
   operacionalPj?: {
-    accountFee: number;
-    individualContribution: number;
-    totalInvoiceTax: number;
+    accountFee?: number;
+    individualContribution?: number;
+    invoice?: { value: number }[];
   };
   personalExpense?: {
-    description: string;
+    name: string;
+    description?: string;
     value: number;
     expenseTypeId: string;
   }[];

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
@@ -8,7 +8,6 @@ import { useSession } from "../../stores/session";
 type LoginFormData = LoginRequest;
 
 export const Login = () => {
-  const [error, setError] = useState("");
   const { createSession, session } = useSession();
 
   const navigate = useNavigate();
@@ -36,25 +35,9 @@ export const Login = () => {
       createSession({ access_token: data.access_token }, data.user);
       navigate("/dashboard");
     },
-    onError: (err: unknown) => {
-      if (err && typeof err === "object" && "response" in err) {
-        const axiosError = err as {
-          response?: { data?: { message?: string } };
-        };
-        setError(
-          axiosError.response?.data?.message ||
-            "Erro ao fazer login. Verifique suas credenciais."
-        );
-      } else if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Erro ao fazer login. Tente novamente.");
-      }
-    },
   });
 
   const onSubmit = (data: LoginFormData) => {
-    setError("");
     loginMutation.mutate(data);
   };
 
@@ -125,12 +108,6 @@ export const Login = () => {
               )}
             </div>
           </div>
-
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-800">{error}</div>
-            </div>
-          )}
 
           <div>
             <button
