@@ -1,25 +1,25 @@
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Controller } from "react-hook-form";
 import { CircularProgress, Divider } from "@mui/material";
-import { Select } from "../select";
-import { Input } from "../input";
+import { Layout } from "../../components/layout";
+import { Select } from "../../components/select";
+import { Input } from "../../components/input";
 import { months } from "../../utils/months";
-import { PersonealExpensesInput } from "../personalExpensesInput";
-import { InvoiceInput } from "../invoiceInput";
+import { PersonealExpensesInput } from "../../components/personalExpensesInput";
+import { InvoiceInput } from "../../components/invoiceInput";
+import { CurrencyField } from "../../components/monthlyClosingModal/CurrencyField";
+import { ExpensesTable } from "../../components/monthlyClosingModal/ExpensesTable";
+import { InvoicesTable } from "../../components/monthlyClosingModal/InvoicesTable";
+import { useMonthlyClosingModal } from "../../components/monthlyClosingModal/useMonthlyClosingModal";
 
-import { useMonthlyClosingModal } from "./useMonthlyClosingModal";
-import { ExpensesTable } from "./ExpensesTable";
-import { InvoicesTable } from "./InvoicesTable";
-import { CurrencyField } from "./CurrencyField";
+export function MonthlyClosing() {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const year = searchParams.get("year") ?? String(new Date().getFullYear());
 
-type Props = {
-  year: string;
-  open: boolean;
-  onClose: () => void;
-  id?: string;
-  onError?: () => void;
-};
+  const handleClose = () => navigate("/dashboard");
 
-export function MonthlyClosingModal({ open, onClose, year, id, onError }: Props) {
   const {
     control,
     errors,
@@ -36,20 +36,17 @@ export function MonthlyClosingModal({ open, onClose, year, id, onError }: Props)
     isPending,
     isLoading,
     hasChanges,
-  } = useMonthlyClosingModal({ year, id, onClose, onError });
-
-  if (!open) return null;
+  } = useMonthlyClosingModal({
+    year,
+    id,
+    onClose: handleClose,
+  });
 
   const isEditing = !!id;
 
   return (
-    <div
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-      role="dialog"
-      aria-modal="true"
-      onClick={(e) => { if (e.target === e.currentTarget) handleCancel(); }}
-    >
-      <div className="relative bg-white p-6 rounded-lg w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-auto">
+    <Layout>
+      <div className="relative max-w-2xl mx-auto">
         {isLoading && isEditing && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg z-10">
             <CircularProgress />
@@ -58,10 +55,10 @@ export function MonthlyClosingModal({ open, onClose, year, id, onError }: Props)
 
         <form onSubmit={handleSubmit}>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-xl font-semibold">
               {isEditing ? "Editar Fechamento" : "Novo Fechamento"}
             </h2>
-            <span className="text-lg font-semibold">{year}</span>
+            <span className="text-xl font-semibold">{year}</span>
           </div>
 
           <div className="flex flex-col gap-6">
@@ -142,6 +139,6 @@ export function MonthlyClosingModal({ open, onClose, year, id, onError }: Props)
           </div>
         </form>
       </div>
-    </div>
+    </Layout>
   );
 }

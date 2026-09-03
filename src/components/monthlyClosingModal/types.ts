@@ -4,3 +4,8 @@ export type ExpenseItem = {
   expenseType: { id: string; name: string };
   value: string;
 };
+
+export type InvoiceItem = {
+  id?: string;
+  value: string;
+};

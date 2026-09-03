@@ -22,11 +22,7 @@ export const monthlyClosingService = {
     return response.data;
   },
   getOneMonthlyClosing: async (id: string): Promise<MonthlyClosing> => {
-    const response = await api.get<MonthlyClosing>(`/monthly-closing/find-one`, {
-      params: {
-        id: id,
-      },
-    });
+    const response = await api.get<MonthlyClosing>(`/monthly-closing/find-one/${id}`);
     return response.data;
   },
   createMonthlyClosing: async (data: CreateMonthlyClosing): Promise<MonthlyClosing> => {

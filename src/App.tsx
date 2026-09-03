@@ -1,12 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "@tanstack/react-query";
+import { Toaster, toast } from "react-hot-toast";
 import { publicRoutes } from "./routes/PublicRoutes";
 import { privateRoutes } from "./routes/PrivateRoutes";
 import { useSession } from "./stores/session";
 import { useEffect, useState } from "react";
 import { authRefreshService } from "./services/auth/refresh";
+import { getErrorMessage } from "./utils/getErrorMessage";
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => toast.error(getErrorMessage(error)),
+  }),
+  mutationCache: new MutationCache({
+    onError: (error) => toast.error(getErrorMessage(error)),
+  }),
   defaultOptions: {
     queries: {
       retry: 1,
@@ -38,6 +46,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster position="top-right" />
       <BrowserRouter>
         <Routes>
           {publicRoutes.map((route) => (

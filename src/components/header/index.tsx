@@ -9,10 +9,12 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 
 import { authLogoutService } from "../../services/auth/logout";
 import { useSession } from "../../stores/session";
+import { getErrorMessage } from "../../utils/getErrorMessage";
 
 export function Header() {
   const { destroySession } = useSession.getState();
@@ -64,9 +66,14 @@ export function Header() {
               </MenuItem>
               <MenuItem
                 onClick={async () => {
-                  await authLogoutService.logout();
-                  destroySession();
-                  navigate("/login");
+                  try {
+                    await authLogoutService.logout();
+                  } catch (error) {
+                    toast.error(getErrorMessage(error, "Erro ao encerrar sessão."));
+                  } finally {
+                    destroySession();
+                    navigate("/login");
+                  }
                 }}
               >
                 <Typography sx={{ textAlign: "center" }}>Logout</Typography>

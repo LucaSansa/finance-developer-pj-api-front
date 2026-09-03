@@ -114,6 +114,27 @@ export const MonthCard = ({
       />
 
       <div className="flex justify-between items-center">
+        <h1>Total restante</h1>
+        <h1>
+          R${" "}
+          {(
+            ammountCollected -
+            (accountFee +
+              individualContribuition +
+              totalInvoiceTax +
+              totalPersonalExpense)
+          ).toFixed(2)}
+        </h1>
+      </div>
+
+      <Divider
+        style={{
+          marginTop: "4px",
+          marginBottom: "4px",
+        }}
+      />
+
+      <div className="flex justify-between items-center">
         <h1>Status</h1>
         <h1>{isClosing ? "Fechado" : "Aberto"}</h1>
       </div>

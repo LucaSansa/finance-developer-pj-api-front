@@ -134,6 +134,7 @@
 
 
 import axios, { type AxiosRequestConfig } from "axios";
+import toast from "react-hot-toast";
 import { useSession } from "../stores/session";
 import { authRefreshService } from "./auth/refresh";
 
@@ -180,6 +181,7 @@ api.interceptors.response.use(
         })
         .catch((err) => {
           destroySession();
+          toast.error("Sessão expirada. Faça login novamente.");
           window.location.href = "/login";
           throw err;
         })
