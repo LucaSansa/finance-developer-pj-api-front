@@ -1,5 +1,4 @@
 import { Controller, useForm } from "react-hook-form";
-import { Input } from "../input";
 import { currencyMask } from "../../utils/masks";
 import { SearchableSelect } from "../searchableSelect";
 import { useExpenseTypes } from "../../services/expenseTypes";
@@ -44,14 +43,14 @@ export function PersonealExpensesInput({ addType }: PersonalExpensesInputProps) 
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+    <div className="border border-line-soft rounded-card p-4 bg-surface-inset/40">
+      <p className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
         Novo gasto
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">Nome</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-ink-soft">Nome</label>
           <Controller
             name="name"
             control={control}
@@ -60,16 +59,16 @@ export function PersonealExpensesInput({ addType }: PersonalExpensesInputProps) 
               <input
                 {...field}
                 placeholder="Ex: Aluguel"
-                className={`h-10 border rounded-md px-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  fieldState.invalid ? "border-red-400" : "border-gray-300"
+                className={`h-10 rounded-control border bg-surface px-3 text-sm text-ink outline-none transition-colors focus:ring-2 focus:ring-brand/30 ${
+                  fieldState.invalid ? "border-expense" : "border-line focus:border-brand"
                 }`}
               />
             )}
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">Descrição</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-ink-soft">Descrição</label>
           <Controller
             name="description"
             control={control}
@@ -78,16 +77,16 @@ export function PersonealExpensesInput({ addType }: PersonalExpensesInputProps) 
               <input
                 {...field}
                 placeholder="Ex: Aluguel residencial"
-                className={`h-10 border rounded-md px-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  fieldState.invalid ? "border-red-400" : "border-gray-300"
+                className={`h-10 rounded-control border bg-surface px-3 text-sm text-ink outline-none transition-colors focus:ring-2 focus:ring-brand/30 ${
+                  fieldState.invalid ? "border-expense" : "border-line focus:border-brand"
                 }`}
               />
             )}
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">Tipo</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-ink-soft">Tipo</label>
           <Controller
             name="expenseType"
             control={control}
@@ -103,8 +102,8 @@ export function PersonealExpensesInput({ addType }: PersonalExpensesInputProps) 
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">Valor</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-ink-soft">Valor</label>
           <Controller
             name="value"
             control={control}
@@ -115,8 +114,8 @@ export function PersonealExpensesInput({ addType }: PersonalExpensesInputProps) 
                 inputMode="numeric"
                 placeholder="R$ 0,00"
                 onChange={(e) => field.onChange(currencyMask(e.target.value))}
-                className={`h-10 border rounded-md px-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  fieldState.invalid ? "border-red-400" : "border-gray-300"
+                className={`h-10 rounded-control border bg-surface px-3 text-sm text-ink outline-none transition-colors focus:ring-2 focus:ring-brand/30 ${
+                  fieldState.invalid ? "border-expense" : "border-line focus:border-brand"
                 }`}
               />
             )}
@@ -127,7 +126,7 @@ export function PersonealExpensesInput({ addType }: PersonalExpensesInputProps) 
       <button
         type="button"
         onClick={handleSubmit(onSubmit)}
-        className="mt-4 w-full sm:w-auto px-5 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+        className="mt-4 w-full sm:w-auto px-5 py-2.5 rounded-control bg-ink text-white text-sm font-medium hover:bg-ink-soft transition-colors"
       >
         + Adicionar gasto
       </button>

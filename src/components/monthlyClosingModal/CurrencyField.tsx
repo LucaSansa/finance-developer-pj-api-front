@@ -11,8 +11,8 @@ type Props<T extends FieldValues> = {
 
 export function CurrencyField<T extends FieldValues>({ label, name, control, error }: Props<T>) {
   return (
-    <div>
-      <span>{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <span className="text-sm font-medium text-ink-soft">{label}</span>
       <Controller
         name={name}
         control={control}
