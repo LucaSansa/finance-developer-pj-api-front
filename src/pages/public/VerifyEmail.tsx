@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react"
 import { Link, Navigate, useLocation } from "react-router-dom"
 import { MailCheck } from "lucide-react"
-import { BalanceBar } from "../../components/balanceBar"
+import { BalanceBar } from "../../components/balanceBar/BalanceBar"
 import { useResendEmailConfirmation } from "../../services/auth/resendEmailConfirmation"
 import toast from "react-hot-toast"
 import { getErrorMessage } from "../../utils/getErrorMessage"
 import { Oval } from "react-loader-spinner"
 
-const RESEND_COOLDOWN_SECONDS = 5
-
+const RESEND_COOLDOWN_SECONDS = 60
 type VerifyEmailState = { email?: string } | null
 
 const formatTime = (totalSeconds: number) => {
@@ -23,7 +22,6 @@ export const VerifyEmail = () => {
   const location = useLocation()
   const email = (location.state as VerifyEmailState)?.email
 
-  console.log(email)
   const [secondsLeft, setSecondsLeft] = useState(RESEND_COOLDOWN_SECONDS)
 
   useEffect(() => {
@@ -36,7 +34,6 @@ export const VerifyEmail = () => {
   const canResend = secondsLeft === 0
 
   const resendEmail = () => {
-    console.log("============> ", email)
     resend(
       {
         email: email!,

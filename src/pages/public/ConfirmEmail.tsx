@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { CircleCheck, CircleX } from "lucide-react"
-import { BalanceBar } from "../../components/balanceBar"
+import { BalanceBar } from "../../components/balanceBar/BalanceBar"
 import { Oval } from "react-loader-spinner"
 import { useConfirmEmail } from "../../services/auth/confirmEmail"
 import { getErrorMessage } from "../../utils/getErrorMessage"

@@ -1,17 +1,17 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Controller, useWatch } from "react-hook-form";
 import { CircularProgress } from "@mui/material";
-import { Layout } from "../../components/layout";
-import { Select } from "../../components/select";
-import { Input } from "../../components/input";
+import { Layout } from "../../components/layout/Layout";
+import { Select } from "../../components/select/Select";
+import { Input } from "../../components/input/Input";
 import { months } from "../../utils/months";
-import { PersonealExpensesInput } from "../../components/personalExpensesInput";
-import { InvoiceInput } from "../../components/invoiceInput";
+import { PersonalExpensesInput } from "../../components/personalExpensesInput/PersonalExpensesInput";
+import { InvoiceInput } from "../../components/invoiceInput/InvoiceInput";
 import { CurrencyField } from "../../components/monthlyClosingModal/CurrencyField";
 import { ExpensesTable } from "../../components/monthlyClosingModal/ExpensesTable";
 import { InvoicesTable } from "../../components/monthlyClosingModal/InvoicesTable";
 import { useMonthlyClosingModal } from "../../components/monthlyClosingModal/useMonthlyClosingModal";
-import { BalanceBar } from "../../components/balanceBar";
+import { BalanceBar } from "../../components/balanceBar/BalanceBar";
 import { convertCurrencyToNumber } from "../../utils/convertCurrencyToNumber";
 import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL";
 
@@ -162,7 +162,7 @@ export function MonthlyClosing() {
                   Registre as despesas pessoais cobertas com esse fechamento.
                 </p>
               </div>
-              <PersonealExpensesInput addType={addExpense} />
+              <PersonalExpensesInput addType={addExpense} />
               <ExpensesTable expenses={expenses} onRemove={removeExpense} />
             </section>
 

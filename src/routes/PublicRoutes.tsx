@@ -1,8 +1,9 @@
 import type { RouteObject } from "react-router-dom"
 import { Login } from "../pages/public/Login"
-import { Signup } from "../pages/public/signup"
+import { Signup } from "../pages/public/Signup"
 import { ConfirmEmail } from "../pages/public/ConfirmEmail"
 import { VerifyEmail } from "../pages/public/VerifyEmail"
+import { ForgotPassword } from "../pages/public/ForgotPassword"
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -20,5 +21,9 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/confirmar-email",
     element: <ConfirmEmail />,
+  },
+  {
+    path: "/resend-forgot-password",
+    element: <ForgotPassword />,
   },
 ]

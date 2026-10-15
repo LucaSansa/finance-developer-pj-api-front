@@ -1,6 +1,6 @@
 import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL";
 import { months } from "../../utils/months";
-import { BalanceBar } from "../balanceBar";
+import { BalanceBar } from "../balanceBar/BalanceBar";
 
 interface personalExpenseRegister {
   id: string;
