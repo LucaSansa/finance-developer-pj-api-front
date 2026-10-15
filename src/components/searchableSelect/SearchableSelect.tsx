@@ -1,6 +1,6 @@
 import { forwardRef, useState, useRef, useEffect } from "react";
 import { mergeClassnames } from "../../utils/mergeClassnames";
-import type { SelectOption } from "../select";
+import type { SelectOption } from "../select/Select";
 
 type SearchableSelectProps = {
   options: SelectOption[];

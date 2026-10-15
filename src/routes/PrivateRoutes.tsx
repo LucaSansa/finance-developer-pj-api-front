@@ -1,7 +1,7 @@
-import type { RouteObject } from "react-router-dom";
-import { ProtectedRoute } from "./ProtectedRoute";
-import { Dashboard } from "../pages/private/Dashboard";
-import { MonthlyClosing } from "../pages/private/MonthlyClosing";
+import type { RouteObject } from "react-router-dom"
+import { ProtectedRoute } from "./ProtectedRoute"
+import { Dashboard } from "../pages/private/Dashboard"
+import { MonthlyClosing } from "../pages/private/MonthlyClosing"
 
 export const privateRoutes: RouteObject[] = [
   {
@@ -28,4 +28,4 @@ export const privateRoutes: RouteObject[] = [
       </ProtectedRoute>
     ),
   },
-];
+]

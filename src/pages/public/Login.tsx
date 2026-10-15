@@ -3,10 +3,11 @@ import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { useLogin, type LoginRequest } from "../../services/auth/login"
 import { useSession } from "../../stores/session"
-import { BalanceBar } from "../../components/balanceBar"
+import { BalanceBar } from "../../components/balanceBar/BalanceBar"
 import { getErrorMessage } from "../../utils/getErrorMessage"
 import { Eye, EyeOff } from "lucide-react"
 import { Oval } from "react-loader-spinner"
+import { useForgotPassword } from "../../services/auth/forgotPassword"
 
 type LoginFormData = LoginRequest
 
@@ -14,12 +15,14 @@ export const Login = () => {
   const { createSession, session, destroySession } = useSession()
   const navigate = useNavigate()
   const [loginError, setLoginError] = useState<string | null>(null)
-
+  const [forgotPasswordError, setForgotPassowordError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
     handleSubmit,
+    trigger,
+    getValues,
     formState: { errors },
   } = useForm<LoginFormData>({
     defaultValues: {
@@ -28,13 +31,8 @@ export const Login = () => {
     },
   })
 
-  useEffect(() => {
-    if (session?.access_token) {
-      navigate("/dashboard", { replace: true })
-    }
-  }, [session, navigate])
-
   const { mutate: login, isPending } = useLogin()
+  const { mutate: sendForgotPassword, isPending: isPendingForgotPassword } = useForgotPassword()
 
   const onSubmit = (data: LoginFormData) => {
     setLoginError(null)
@@ -49,6 +47,35 @@ export const Login = () => {
       },
     })
   }
+
+  const forgPassword = async () => {
+    const email = await getValues("email")
+    const isEmailValid = await trigger("email")
+
+    if (!isEmailValid) return
+
+    setForgotPassowordError(null)
+    sendForgotPassword(
+      {
+        email: email,
+      },
+      {
+        onSuccess: () => {
+          navigate("/resend-forgot-password", { state: { email: email } })
+        },
+        onError: (error) =>
+          setForgotPassowordError(
+            getErrorMessage(error, "Não foi enviar o email para redefinição de senha."),
+          ),
+      },
+    )
+  }
+
+  useEffect(() => {
+    if (session?.access_token) {
+      navigate("/dashboard", { replace: true })
+    }
+  }, [session, navigate])
 
   return (
     <div className="min-h-screen flex bg-canvas">
@@ -128,6 +155,12 @@ export const Login = () => {
             </div>
           )}
 
+          {forgotPasswordError && (
+            <div className="mt-4 p-3.5 rounded-control bg-expense-soft border border-expense text-expense text-sm font-medium">
+              {forgotPasswordError}
+            </div>
+          )}
+
           <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium text-ink-soft">
@@ -159,7 +192,8 @@ export const Login = () => {
                 </label>
                 <button
                   type="button"
-                  className="text-xs font-medium text-brand transition-colors hover:text-brand-strong"
+                  className="text-xs font-medium text-brand transition-colors hover:text-brand-strong cursor-pointer"
+                  onClick={() => forgPassword()}
                 >
                   Esqueci a senha
                 </button>
@@ -201,10 +235,10 @@ export const Login = () => {
 
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || isPendingForgotPassword}
               className="mt-2 h-11 rounded-control bg-brand text-white text-sm font-medium transition-colors hover:bg-brand-strong disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
             >
-              {isPending ? (
+              {isPending || isPendingForgotPassword ? (
                 <Oval
                   visible={true}
                   height="22"

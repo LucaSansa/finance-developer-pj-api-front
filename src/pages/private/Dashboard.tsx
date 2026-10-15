@@ -1,9 +1,9 @@
-import { Layout } from "../../components/layout";
-import { YearSelector } from "../../components/yearSelector";
+import { Layout } from "../../components/layout/Layout";
+import { YearSelector } from "../../components/yearSelector/YearSelector";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetMonthlyClosings } from "../../services/monthlyClosing";
-import { MonthCard } from "../../components/monthCard";
+import { MonthCard } from "../../components/monthCard/MonthCard";
 
 export const Dashboard = () => {
   const currentYear = new Date().getFullYear();

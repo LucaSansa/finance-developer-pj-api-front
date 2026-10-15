@@ -1,5 +1,5 @@
 import { Controller, type Control, type Path, type FieldValues } from "react-hook-form";
-import { Input } from "../input";
+import { Input } from "../input/Input";
 import { currencyMask } from "../../utils/masks";
 
 type Props<T extends FieldValues> = {

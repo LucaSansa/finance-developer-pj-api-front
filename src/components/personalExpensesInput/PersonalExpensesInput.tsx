@@ -1,6 +1,6 @@
 import { Controller, useForm } from "react-hook-form";
 import { currencyMask } from "../../utils/masks";
-import { SearchableSelect } from "../searchableSelect";
+import { SearchableSelect } from "../searchableSelect/SearchableSelect";
 import { useExpenseTypes } from "../../services/expenseTypes";
 
 type PersonalExpensesInputProps = {
@@ -19,7 +19,7 @@ type FormData = {
   value: string;
 };
 
-export function PersonealExpensesInput({ addType }: PersonalExpensesInputProps) {
+export function PersonalExpensesInput({ addType }: PersonalExpensesInputProps) {
   const { handleSubmit, control, reset } = useForm<FormData>({
     defaultValues: { name: "", description: "", expenseType: "", value: "" },
   });

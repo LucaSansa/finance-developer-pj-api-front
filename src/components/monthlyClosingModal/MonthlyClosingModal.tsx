@@ -1,10 +1,10 @@
 import { Controller } from "react-hook-form";
 import { CircularProgress } from "@mui/material";
-import { Select } from "../select";
-import { Input } from "../input";
+import { Select } from "../select/Select";
+import { Input } from "../input/Input";
 import { months } from "../../utils/months";
-import { PersonealExpensesInput } from "../personalExpensesInput";
-import { InvoiceInput } from "../invoiceInput";
+import { PersonalExpensesInput } from "../personalExpensesInput/PersonalExpensesInput";
+import { InvoiceInput } from "../invoiceInput/InvoiceInput";
 
 import { useMonthlyClosingModal } from "./useMonthlyClosingModal";
 import { ExpensesTable } from "./ExpensesTable";
@@ -128,7 +128,7 @@ export function MonthlyClosingModal({ open, onClose, year, id, onError }: Props)
 
             <section className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold text-ink">Gastos pessoais</h2>
-              <PersonealExpensesInput addType={addExpense} />
+              <PersonalExpensesInput addType={addExpense} />
               <ExpensesTable expenses={expenses} onRemove={removeExpense} />
             </section>
 

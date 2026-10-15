@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form"
-import { BalanceBar } from "../../components/balanceBar"
+import { BalanceBar } from "../../components/balanceBar/BalanceBar"
 import { yupResolver } from "@hookform/resolvers/yup"
 import type * as yup from "yup"
 import { signupSchema } from "../../utils/schemas/signupSchema"
