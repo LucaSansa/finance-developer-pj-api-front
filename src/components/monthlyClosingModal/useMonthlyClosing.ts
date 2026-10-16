@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
+import toast from "react-hot-toast"
 import { currencyMask } from "../../utils/masks"
 import { convertCurrencyToNumber } from "../../utils/convertCurrencyToNumber"
 import { monthlyClosingSchema } from "../../utils/schemas/monthlyClosingSchema"
@@ -126,6 +127,13 @@ export function useMonthlyClosing({
     setLoadedId(null)
   }
 
+  // reset() sem argumentos volta ao último valor definido: os dados da API ao editar, vazio ao criar
+  function resetToOriginal() {
+    reset()
+    setExpenses(initialExpenses)
+    setInvoices(initialInvoices)
+  }
+
   function handleCancel() {
     clearState()
     onClose()
@@ -164,6 +172,7 @@ export function useMonthlyClosing({
         { id, data: payload },
         {
           onSuccess: () => {
+            toast.success("Fechamento atualizado com sucesso!")
             clearState()
             onClose()
           },
@@ -172,6 +181,7 @@ export function useMonthlyClosing({
     } else {
       create(payload, {
         onSuccess: () => {
+          toast.success("Fechamento criado com sucesso!")
           clearState()
           onClose()
         },
@@ -208,6 +218,7 @@ export function useMonthlyClosing({
     totalInvoiceTaxValue,
     handleSubmit,
     handleCancel,
+    resetToOriginal,
     isPending,
     isLoading,
     hasChanges,
