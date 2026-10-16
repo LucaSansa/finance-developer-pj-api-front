@@ -6,7 +6,7 @@ import { months } from "../../utils/months";
 import { PersonalExpensesInput } from "../personalExpensesInput/PersonalExpensesInput";
 import { InvoiceInput } from "../invoiceInput/InvoiceInput";
 
-import { useMonthlyClosingModal } from "./useMonthlyClosingModal";
+import { useMonthlyClosing } from "./useMonthlyClosing";
 import { ExpensesTable } from "./ExpensesTable";
 import { InvoicesTable } from "./InvoicesTable";
 import { CurrencyField } from "./CurrencyField";
@@ -36,7 +36,7 @@ export function MonthlyClosingModal({ open, onClose, year, id, onError }: Props)
     isPending,
     isLoading,
     hasChanges,
-  } = useMonthlyClosingModal({ year, id, onClose, onError });
+  } = useMonthlyClosing({ year, id, onClose, onError });
 
   if (!open) return null;
 
