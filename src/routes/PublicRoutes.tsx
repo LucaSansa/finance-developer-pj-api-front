@@ -1,5 +1,5 @@
 import type { RouteObject } from "react-router-dom"
-import { Login } from "../pages/public/Login"
+import { Signin } from "../pages/public/Signin"
 import { Signup } from "../pages/public/Signup"
 import { ConfirmEmail } from "../pages/public/ConfirmEmail"
 import { VerifyEmail } from "../pages/public/VerifyEmail"
@@ -8,8 +8,8 @@ import { ResetPassword } from "../pages/public/ResetPassword"
 
 export const publicRoutes: RouteObject[] = [
   {
-    path: "/login",
-    element: <Login />,
+    path: "/signin",
+    element: <Signin />,
   },
   {
     path: "signup",

@@ -50,7 +50,7 @@ api.interceptors.response.use(
         .catch((err) => {
           destroySession()
           toast.error("Sessão expirada. Faça login novamente.")
-          window.location.href = "/login"
+          window.location.href = "/signin"
           throw err
         })
         .finally(() => {
