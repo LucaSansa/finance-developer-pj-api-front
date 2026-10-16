@@ -1,27 +1,54 @@
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Controller, useWatch } from "react-hook-form";
-import { CircularProgress } from "@mui/material";
-import { Layout } from "../../components/layout/Layout";
-import { Select } from "../../components/select/Select";
-import { Input } from "../../components/input/Input";
-import { months } from "../../utils/months";
-import { PersonalExpensesInput } from "../../components/personalExpensesInput/PersonalExpensesInput";
-import { InvoiceInput } from "../../components/invoiceInput/InvoiceInput";
-import { CurrencyField } from "../../components/monthlyClosingModal/CurrencyField";
-import { ExpensesTable } from "../../components/monthlyClosingModal/ExpensesTable";
-import { InvoicesTable } from "../../components/monthlyClosingModal/InvoicesTable";
-import { useMonthlyClosingModal } from "../../components/monthlyClosingModal/useMonthlyClosingModal";
-import { BalanceBar } from "../../components/balanceBar/BalanceBar";
-import { convertCurrencyToNumber } from "../../utils/convertCurrencyToNumber";
-import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { Controller, useWatch } from "react-hook-form"
+import { CircularProgress } from "@mui/material"
+import { Layout } from "../../components/layout/Layout"
+import { Select } from "../../components/select/Select"
+import { Input } from "../../components/input/Input"
+import { months } from "../../utils/months"
+import { PersonalExpensesInput } from "../../components/personalExpensesInput/PersonalExpensesInput"
+import { InvoiceInput } from "../../components/invoiceInput/InvoiceInput"
+import { CurrencyField } from "../../components/monthlyClosingModal/CurrencyField"
+import { ExpensesTable } from "../../components/monthlyClosingModal/ExpensesTable"
+import { InvoicesTable } from "../../components/monthlyClosingModal/InvoicesTable"
+import { useMonthlyClosing } from "../../components/monthlyClosingModal/useMonthlyClosing"
+import { BalanceBar } from "../../components/balanceBar/BalanceBar"
+import { convertCurrencyToNumber } from "../../utils/convertCurrencyToNumber"
+import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL"
+import { useState } from "react"
+import { useGetMe } from "../../services/user"
 
 export function MonthlyClosing() {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
-  const year = searchParams.get("year") ?? String(new Date().getFullYear());
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
+  const year = searchParams.get("year") ?? String(new Date().getFullYear())
 
-  const handleClose = () => navigate("/dashboard");
+  const { data } = useGetMe()
+  const registeredTaxPercentage: number | null | undefined = data?.taxPercentage
+
+  const [taxPercentageMode, setTaxPercentageMode] = useState<"registered" | "manual" | null>(
+    registeredTaxPercentage === null || registeredTaxPercentage === undefined ? null : "registered",
+  )
+  const [manualTaxPercentage, setManualTaxPercentage] = useState("")
+  const [hasTaxPercentageChanges, setHasTaxPercentageChanges] = useState(false)
+
+  const manualPercentageValue = Number(manualTaxPercentage)
+  const manualTaxPercentageToSubmit =
+    taxPercentageMode === "manual" &&
+    manualTaxPercentage !== "" &&
+    Number.isFinite(manualPercentageValue) &&
+    manualPercentageValue >= 0
+      ? manualPercentageValue
+      : undefined
+  const activeTaxPercentage: number | null | undefined =
+    taxPercentageMode === "registered"
+      ? registeredTaxPercentage
+      : (manualTaxPercentageToSubmit ?? null)
+  const taxPercentageToSubmit = hasTaxPercentageChanges
+    ? (activeTaxPercentage ?? 0)
+    : manualTaxPercentageToSubmit
+
+  const handleClose = () => navigate("/dashboard")
 
   const {
     control,
@@ -34,35 +61,44 @@ export function MonthlyClosing() {
     removeInvoice,
     amountCollected,
     amountCollectedValue,
-    totalInvoiceTax,
-    totalInvoiceTaxValue,
+    totalInvoiceTaxValue: savedTotalInvoiceTaxValue,
     handleSubmit,
     handleCancel,
     isPending,
     isLoading,
     hasChanges,
-  } = useMonthlyClosingModal({
+    toCurrencyValue,
+  } = useMonthlyClosing({
     year,
     id,
     onClose: handleClose,
-  });
+    taxPercentageToSubmit,
+    hasTaxPercentageChanges,
+  })
 
-  const isEditing = !!id;
+  const isEditing = !!id
+
+  const totalInvoiceTaxValue = isEditing && !hasTaxPercentageChanges
+    ? savedTotalInvoiceTaxValue
+    : amountCollectedValue * ((activeTaxPercentage ?? 0) / 100)
+  const totalInvoiceTaxField = toCurrencyValue(totalInvoiceTaxValue)
 
   const [accountFeeField, individualContributionField] = useWatch({
     control,
     name: ["accountFee", "individualContribution"],
-  });
+  })
 
   const operationalTotal =
     convertCurrencyToNumber(accountFeeField) +
     convertCurrencyToNumber(individualContributionField) +
-    totalInvoiceTaxValue;
+    totalInvoiceTaxValue
+
   const expensesTotal = expenses.reduce(
     (total, expense) => total + convertCurrencyToNumber(expense.value),
-    0
-  );
-  const remaining = amountCollectedValue - (operationalTotal + expensesTotal);
+    0,
+  )
+
+  const remaining = amountCollectedValue - (operationalTotal + expensesTotal)
 
   return (
     <Layout>
@@ -89,7 +125,10 @@ export function MonthlyClosing() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start"
+        >
           <div className="flex flex-col gap-6 bg-surface border border-line-soft rounded-panel shadow-card p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
@@ -149,9 +188,71 @@ export function MonthlyClosing() {
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5 sm:w-1/2">
-                <span className="text-sm font-medium text-ink-soft">Imposto sobre a nota</span>
-                <Input value={totalInvoiceTax} disabled readOnly />
+              <div className="flex flex-col">
+                <div className="flex flex-col gap-1.5 sm:w-1/2 mb-2">
+                  <span className="text-sm font-medium text-ink-soft">Imposto sobre a nota</span>
+                  <Input value={totalInvoiceTaxField} disabled readOnly />
+                </div>
+                <div className="flex flex-col  sm:w-1/2">
+                  {registeredTaxPercentage !== null ? (
+                    <label className="flex min-h-9 cursor-pointer items-center gap-2 text-sm text-ink-soft">
+                      <input
+                        type="checkbox"
+                        checked={taxPercentageMode === "registered"}
+                        onChange={(event) => {
+                          const isChecked = event.target.checked
+                          if (isChecked) {
+                            setManualTaxPercentage("")
+                          }
+                          setHasTaxPercentageChanges(true)
+                          setTaxPercentageMode(isChecked ? "registered" : null)
+                        }}
+                        className="h-4 w-4 accent-brand"
+                      />
+                      Aplicar margem cadastrada ({registeredTaxPercentage}%)
+                    </label>
+                  ) : (
+                    <button
+                      type="button"
+                      className="flex min-h-9 w-fit items-center text-left text-sm font-medium text-brand underline underline-offset-4 transition-colors hover:text-brand-strong"
+                    >
+                      Cadastrar margem de imposto
+                    </button>
+                  )}
+                  <label className="flex min-h-9 cursor-pointer items-center gap-2 text-sm text-ink-soft mb-2">
+                    <input
+                      type="checkbox"
+                      checked={taxPercentageMode === "manual"}
+                      onChange={(event) => {
+                        setHasTaxPercentageChanges(true)
+                        setTaxPercentageMode(event.target.checked ? "manual" : null)
+                      }}
+                      className="h-4 w-4 accent-brand"
+                    />
+                    Informar margem manualmente
+                  </label>
+                  {taxPercentageMode === "manual" && (
+                    <div className="flex items-center gap-2">
+                      <label htmlFor="manual-tax-percentage" className="sr-only">
+                        Porcentagem manual do imposto
+                      </label>
+                      <Input
+                        id="manual-tax-percentage"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={manualTaxPercentage}
+                        onChange={(event) => {
+                          setManualTaxPercentage(event.target.value)
+                          setHasTaxPercentageChanges(true)
+                        }}
+                        placeholder="0"
+                        className="w-28"
+                      />
+                      <span className="text-sm text-ink-soft">%</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </section>
 
@@ -218,11 +319,15 @@ export function MonthlyClosing() {
             <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-white/60">Operacional PJ</span>
-                <span className="text-sm font-semibold tabular-nums">{formatCurrencyBRL(operationalTotal)}</span>
+                <span className="text-sm font-semibold tabular-nums">
+                  {formatCurrencyBRL(operationalTotal)}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-white/60">Despesas pessoais</span>
-                <span className="text-sm font-semibold tabular-nums">{formatCurrencyBRL(expensesTotal)}</span>
+                <span className="text-sm font-semibold tabular-nums">
+                  {formatCurrencyBRL(expensesTotal)}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-white/60">Saldo restante</span>
@@ -256,5 +361,5 @@ export function MonthlyClosing() {
         </form>
       </div>
     </Layout>
-  );
+  )
 }

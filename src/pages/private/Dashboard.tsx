@@ -1,25 +1,27 @@
-import { Layout } from "../../components/layout/Layout";
-import { YearSelector } from "../../components/yearSelector/YearSelector";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useGetMonthlyClosings } from "../../services/monthlyClosing";
-import { MonthCard } from "../../components/monthCard/MonthCard";
+import { Layout } from "../../components/layout/Layout"
+import { YearSelector } from "../../components/yearSelector/YearSelector"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useGetMonthlyClosings } from "../../services/monthlyClosing"
+import { MonthCard } from "../../components/monthCard/MonthCard"
 
 export const Dashboard = () => {
-  const currentYear = new Date().getFullYear();
-  const [year, setYear] = useState(currentYear);
-  const [startDate, setStartDate] = useState(`${currentYear}-01-01`);
-  const [endDate, setEndDate] = useState(`${currentYear}-12-31`);
-  const navigate = useNavigate();
+  const currentYear = new Date().getFullYear()
+  const [year, setYear] = useState(currentYear)
+  const [startDate, setStartDate] = useState(`${currentYear}-01-01`)
+  const [endDate, setEndDate] = useState(`${currentYear}-12-31`)
+  const navigate = useNavigate()
 
   const { data, isLoading } = useGetMonthlyClosings({
     page: 1,
     limit: 12,
     startDate: startDate,
     endDate: endDate,
-  });
+  })
 
-  const total = data?.data?.length ?? 0;
+  console.log(data)
+
+  const total = data?.data?.length ?? 0
 
   return (
     <Layout>
@@ -35,9 +37,9 @@ export const Dashboard = () => {
           <YearSelector
             year={year}
             onChangeYear={(selectedYear) => {
-              setYear(selectedYear);
-              setStartDate(`${selectedYear}-01-01`);
-              setEndDate(`${selectedYear}-12-31`);
+              setYear(selectedYear)
+              setStartDate(`${selectedYear}-01-01`)
+              setEndDate(`${selectedYear}-12-31`)
             }}
           />
 
@@ -69,7 +71,8 @@ export const Dashboard = () => {
           </div>
           <p className="text-ink font-medium">Nenhum fechamento cadastrado em {year}</p>
           <p className="text-sm text-ink-faint max-w-sm">
-            Comece adicionando o primeiro mês para acompanhar notas fiscais, custo operacional e despesas pessoais.
+            Comece adicionando o primeiro mês para acompanhar notas fiscais, custo operacional e
+            despesas pessoais.
           </p>
           <button
             type="button"
@@ -89,9 +92,7 @@ export const Dashboard = () => {
               closingDate={closing.closingDate}
               ammountCollected={closing.amountCollected}
               accountFee={closing.operacionalPj?.accountFee || 0}
-              individualContribuition={
-                closing.operacionalPj?.individualContribution || 0
-              }
+              individualContribuition={closing.operacionalPj?.individualContribution || 0}
               totalInvoiceTax={closing.operacionalPj?.totalInvoiceTax || 0}
               personalExpense={closing.personalExpense}
               isClosing={closing.isClosing}
@@ -101,5 +102,5 @@ export const Dashboard = () => {
         </div>
       )}
     </Layout>
-  );
-};
+  )
+}
