@@ -69,7 +69,12 @@ export function Header() {
               }}
             >
               {user?.name && (
-                <MenuItem disabled sx={{ opacity: "1 !important" }}>
+                <MenuItem
+                  onClick={() => {
+                    handleCloseUserMenu()
+                    navigate("/profile")
+                  }}
+                >
                   <Typography
                     sx={{ textAlign: "center", fontWeight: 600, color: "var(--color-ink)" }}
                   >

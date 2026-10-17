@@ -243,7 +243,14 @@ export function MonthlyClosing() {
                   ) : (
                     <button
                       type="button"
-                      className="flex min-h-9 w-fit items-center text-left text-sm font-medium text-brand underline underline-offset-4 transition-colors hover:text-brand-strong"
+                      className="flex min-h-9 w-fit items-center text-left text-sm font-medium text-brand underline underline-offset-4 transition-colors hover:text-brand-strong cursor-pointer"
+                      onClick={() =>
+                        navigate("/profile", {
+                          state: {
+                            focus: "taxPercentage",
+                          },
+                        })
+                      }
                     >
                       Cadastrar margem de imposto
                     </button>
