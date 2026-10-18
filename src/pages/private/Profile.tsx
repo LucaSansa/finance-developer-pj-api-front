@@ -4,9 +4,9 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import type * as yup from "yup"
 import { Layout } from "../../components/layout/Layout"
 import { Input } from "../../components/input/Input"
-import { useGetMe, useUpdateUser } from "../../services/user"
+import { useChangeEmailRequest, useGetMe, useUpdateUser } from "../../services/user"
 import type { UpdateUser } from "../../services/user"
-import { profileSchema } from "../../utils/schemas/profileSchema"
+import { userInfo, emailChange } from "../../utils/schemas/profileSchema"
 import { maskCnpj } from "../../utils/maskCnpj"
 import toast from "react-hot-toast"
 import { getErrorMessage } from "../../utils/getErrorMessage"
@@ -17,6 +17,8 @@ export function Profile() {
   const { state } = useLocation()
   const { data: me } = useGetMe()
   const { mutate: updateUser, isPending } = useUpdateUser()
+  const { mutate: changeEmailRequest, isPending: isPendingChangeEmailRequest } =
+    useChangeEmailRequest()
 
   const {
     register,
@@ -24,11 +26,27 @@ export function Profile() {
     reset,
     formState: { errors, dirtyFields, isDirty },
   } = useForm({
-    resolver: yupResolver(profileSchema),
+    resolver: yupResolver(userInfo),
     defaultValues: {
       name: "",
       cnpj: "",
       taxPercentage: "",
+    },
+  })
+
+  const {
+    register: registerChangeEmailForm,
+    handleSubmit: handleSubmitChangeEmailForm,
+    reset: resetChangeEmailForm,
+    formState: {
+      errors: changeEmailErrors,
+      dirtyFields: changeEmailDirtyFields,
+      isDirty: changeEmailDirty,
+    },
+  } = useForm({
+    resolver: yupResolver(emailChange),
+    defaultValues: {
+      email: "",
     },
   })
 
@@ -43,9 +61,13 @@ export function Profile() {
       cnpj: me.cnpj ? maskCnpj(me.cnpj) : "",
       taxPercentage: me.taxPercentage != null ? String(me.taxPercentage) : "",
     })
-  }, [me, reset])
 
-  const onSubmit = (data: yup.InferType<typeof profileSchema>) => {
+    resetChangeEmailForm({
+      email: me.email ?? "",
+    })
+  }, [me, reset, resetChangeEmailForm])
+
+  const onSubmit = (data: yup.InferType<typeof userInfo>) => {
     // PATCH: apenas os campos alterados
     const changedFields: UpdateUser = {}
 
@@ -59,13 +81,17 @@ export function Profile() {
       onSuccess: () => {
         toast.success("Dados atualizados com sucesso!")
       },
-      onError: (error) => {
-        toast.error(
-          getErrorMessage(
-            error,
-            "Não foi possivel atualizar as informações do usuário, tente novamente mais tarde.",
-          ),
-        )
+    })
+  }
+
+  const onSubmitChangeEmail = (data: yup.InferType<typeof emailChange>) => {
+    const changedField: { email: string } = { email: "" }
+
+    if (changeEmailDirtyFields.email) changedField.email = data.email
+
+    changeEmailRequest(changedField, {
+      onSuccess: () => {
+        toast.success("Confira o e-mail enviado no novo endereço")
       },
     })
   }
@@ -76,7 +102,7 @@ export function Profile() {
         <h1 className="text-2xl font-semibold text-ink tracking-tight">Meu perfil</h1>
       </div>
 
-      <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
+      <form className="flex flex-col gap-5 mb-8" onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-5 w-full md:max-w-md">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="name" className="text-sm font-medium text-ink-soft">
@@ -151,6 +177,55 @@ export function Profile() {
             />
           ) : (
             "Salvar"
+          )}
+        </button>
+      </form>
+
+      <div className="flex flex-col gap-1 mb-8">
+        <h1 className="text-2xl font-semibold text-ink tracking-tight">Email</h1>
+      </div>
+
+      <form
+        className="flex flex-col gap-5 mb-8"
+        onSubmit={handleSubmitChangeEmailForm(onSubmitChangeEmail)}
+      >
+        <div className="flex flex-col gap-1.5 w-full md:max-w-md">
+          <label htmlFor="name" className="text-sm font-medium text-ink-soft">
+            Email
+          </label>
+          <input
+            id="email"
+            type="text"
+            autoComplete="off"
+            placeholder="E-mail"
+            {...registerChangeEmailForm("email")}
+            className={`h-11 rounded-control border px-3.5 text-sm text-ink bg-surface outline-none transition-colors focus:ring-2 focus:ring-brand/30 ${
+              changeEmailErrors.email ? "border-expense" : "border-line focus:border-brand"
+            }`}
+          />
+          {changeEmailErrors.email && (
+            <p className="text-xs text-expense">{changeEmailErrors.email.message}</p>
+          )}
+        </div>
+
+        <button
+          disabled={!changeEmailDirty}
+          type="submit"
+          className="mt-2 h-11 rounded-control bg-brand text-white text-sm font-medium transition-colors hover:bg-brand-strong w-full md:max-w-md flex justify-center items-center"
+        >
+          {isPendingChangeEmailRequest ? (
+            <Oval
+              visible={true}
+              height="22"
+              width="22"
+              color="#FFF"
+              secondaryColor="rgba(255, 255, 255, 0.25)"
+              ariaLabel="oval-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          ) : (
+            "Enviar"
           )}
         </button>
       </form>

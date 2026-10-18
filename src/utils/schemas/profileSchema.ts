@@ -1,7 +1,7 @@
 import * as yup from "yup"
 import { isValidCnpj } from "../isValidCnpj"
 
-export const profileSchema = yup.object({
+export const userInfo = yup.object({
   name: yup
     .string()
     .required("Informe o nome completo")
@@ -24,4 +24,8 @@ export const profileSchema = yup.object({
 
       return !Number.isNaN(number) && number >= 0 && number <= 100
     }),
+})
+
+export const emailChange = yup.object({
+  email: yup.string().email("Digite um e-mail válido").required("O e-mail é obrigatório"),
 })

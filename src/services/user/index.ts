@@ -14,6 +14,14 @@ export interface UpdateUser {
   taxPercentage?: number
 }
 
+export interface ChangeEmailResquest {
+  email: string
+}
+
+export interface ChangeEmailRequestResponse {
+  message: string
+}
+
 export const userService = {
   getMe: async (): Promise<MeResponse> => {
     const response = await api.get<MeResponse>("/users/me")
@@ -21,6 +29,10 @@ export const userService = {
   },
   updateUser: async (data: UpdateUser): Promise<UpdateUser> => {
     const response = await api.patch<UpdateUser>("/users", data)
+    return response.data
+  },
+  changeEmailResquet: async (data: ChangeEmailResquest): Promise<ChangeEmailRequestResponse> => {
+    const response = await api.post<ChangeEmailRequestResponse>("/users/me/email-change", data)
     return response.data
   },
 }
@@ -41,5 +53,11 @@ export const useUpdateUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] })
     },
+  })
+}
+
+export const useChangeEmailRequest = () => {
+  return useMutation({
+    mutationFn: userService.changeEmailResquet,
   })
 }
