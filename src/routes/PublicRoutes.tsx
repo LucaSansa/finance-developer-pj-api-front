@@ -5,6 +5,7 @@ import { ConfirmEmail } from "../pages/public/ConfirmEmail"
 import { VerifyEmail } from "../pages/public/VerifyEmail"
 import { ForgotPassword } from "../pages/public/ForgotPassword"
 import { ResetPassword } from "../pages/public/ResetPassword"
+import { ConfirmEmailChange } from "../pages/public/ConfirmEmailChange"
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -30,5 +31,9 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/reset-password",
     element: <ResetPassword />,
+  },
+  {
+    path: "/confirmar-troca-email",
+    element: <ConfirmEmailChange />,
   },
 ]
