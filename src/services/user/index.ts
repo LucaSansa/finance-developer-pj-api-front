@@ -22,6 +22,15 @@ export interface ChangeEmailRequestResponse {
   message: string
 }
 
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
+}
+
+export interface ChangePasswordRequestResponse {
+  message: string
+}
+
 export const userService = {
   getMe: async (): Promise<MeResponse> => {
     const response = await api.get<MeResponse>("/users/me")
@@ -33,6 +42,12 @@ export const userService = {
   },
   changeEmailResquet: async (data: ChangeEmailResquest): Promise<ChangeEmailRequestResponse> => {
     const response = await api.post<ChangeEmailRequestResponse>("/users/me/email-change", data)
+    return response.data
+  },
+  changePasswordRequest: async (
+    data: ChangePasswordRequest,
+  ): Promise<ChangePasswordRequestResponse> => {
+    const response = await api.post<ChangePasswordRequestResponse>("/users/change-password", data)
     return response.data
   },
 }
@@ -59,5 +74,11 @@ export const useUpdateUser = () => {
 export const useChangeEmailRequest = () => {
   return useMutation({
     mutationFn: userService.changeEmailResquet,
+  })
+}
+
+export const useChangePasswordRequest = () => {
+  return useMutation({
+    mutationFn: userService.changePasswordRequest,
   })
 }

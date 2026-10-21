@@ -29,3 +29,29 @@ export const userInfo = yup.object({
 export const emailChange = yup.object({
   email: yup.string().email("Digite um e-mail válido").required("O e-mail é obrigatório"),
 })
+
+export const changePassword = yup.object({
+  currentPassword: yup
+    .string()
+    .required("Informe uma senha")
+    .min(8, "A senha deve ter no mínimo 8 caracteres")
+    .max(12, "A senha deve ter no máximo 12 caracteres")
+    .matches(/[a-z]/, "A senha deve conter pelo menos uma letra minúscula")
+    .matches(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula")
+    .matches(/[0-9]/, "A senha deve conter pelo menos um número")
+    .matches(/[^A-Za-z0-9]/, "A senha deve conter pelo menos um símbolo"),
+  newPassword: yup
+    .string()
+    .required("Informe uma senha")
+    .min(8, "A senha deve ter no mínimo 8 caracteres")
+    .max(12, "A senha deve ter no máximo 12 caracteres")
+    .matches(/[a-z]/, "A senha deve conter pelo menos uma letra minúscula")
+    .matches(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula")
+    .matches(/[0-9]/, "A senha deve conter pelo menos um número")
+    .matches(/[^A-Za-z0-9]/, "A senha deve conter pelo menos um símbolo")
+    .notOneOf([yup.ref("currentPassword")], "A nova senha deve ser diferente da senha atual"),
+  passwordConfirmation: yup
+    .string()
+    .required("Confirme sua senha")
+    .oneOf([yup.ref("newPassword")], "As senhas não coincidem"),
+})
