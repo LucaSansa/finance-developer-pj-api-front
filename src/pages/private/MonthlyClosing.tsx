@@ -17,6 +17,7 @@ import { useGetMe } from "../../services/user"
 import { convertCurrencyToNumber } from "../../utils/convertCurrencyToNumber"
 import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL"
 import { months } from "../../utils/months"
+import { ArrowLeft } from "lucide-react"
 
 // Como a margem de imposto é definida: pela margem cadastrada, digitada na hora, ou sem escolha
 type TaxMode = "registered" | "manual" | "none"
@@ -132,6 +133,15 @@ export function MonthlyClosing() {
 
   return (
     <Layout>
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        aria-label="Voltar"
+        className="mb-6 inline-flex w-fit items-center text-black transition-opacity hover:opacity-70 cursor-pointer"
+      >
+        <ArrowLeft size={24} aria-hidden="true" />
+      </button>
+
       <div className="relative">
         {isLoading && isEditing && (
           <div className="absolute inset-0 bg-canvas/80 flex items-center justify-center rounded-panel z-10">
@@ -139,20 +149,11 @@ export function MonthlyClosing() {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-4 mb-8">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold text-ink tracking-tight">
-              {isEditing ? "Editar fechamento" : "Novo fechamento"}
-            </h1>
-            <p className="text-sm text-ink-faint">Ano de referência {year}</p>
-          </div>
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="h-10 px-4 rounded-control border border-line bg-surface text-sm font-medium text-ink-soft hover:border-line-strong transition-colors"
-          >
-            Voltar
-          </button>
+        <div className="flex flex-col gap-1 mb-8">
+          <h1 className="text-2xl font-semibold text-ink tracking-tight">
+            {isEditing ? "Editar fechamento" : "Novo fechamento"}
+          </h1>
+          <p className="text-sm text-ink-faint">Ano de referência {year}</p>
         </div>
 
         <form
@@ -243,7 +244,14 @@ export function MonthlyClosing() {
                   ) : (
                     <button
                       type="button"
-                      className="flex min-h-9 w-fit items-center text-left text-sm font-medium text-brand underline underline-offset-4 transition-colors hover:text-brand-strong"
+                      className="flex min-h-9 w-fit items-center text-left text-sm font-medium text-brand underline underline-offset-4 transition-colors hover:text-brand-strong cursor-pointer"
+                      onClick={() =>
+                        navigate("/profile", {
+                          state: {
+                            focus: "taxPercentage",
+                          },
+                        })
+                      }
                     >
                       Cadastrar margem de imposto
                     </button>

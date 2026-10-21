@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { api } from ".."
 
 export interface MeResponse {
@@ -8,9 +8,46 @@ export interface MeResponse {
   taxPercentage: number | null
 }
 
+export interface UpdateUser {
+  name?: string
+  cnpj?: string
+  taxPercentage?: number
+}
+
+export interface ChangeEmailResquest {
+  email: string
+}
+
+export interface ChangeEmailRequestResponse {
+  message: string
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
+}
+
+export interface ChangePasswordRequestResponse {
+  message: string
+}
+
 export const userService = {
   getMe: async (): Promise<MeResponse> => {
     const response = await api.get<MeResponse>("/users/me")
+    return response.data
+  },
+  updateUser: async (data: UpdateUser): Promise<UpdateUser> => {
+    const response = await api.patch<UpdateUser>("/users", data)
+    return response.data
+  },
+  changeEmailResquet: async (data: ChangeEmailResquest): Promise<ChangeEmailRequestResponse> => {
+    const response = await api.post<ChangeEmailRequestResponse>("/users/me/email-change", data)
+    return response.data
+  },
+  changePasswordRequest: async (
+    data: ChangePasswordRequest,
+  ): Promise<ChangePasswordRequestResponse> => {
+    const response = await api.post<ChangePasswordRequestResponse>("/users/change-password", data)
     return response.data
   },
 }
@@ -20,5 +57,28 @@ export const useGetMe = () => {
     queryKey: ["me"],
     queryFn: () => userService.getMe(),
     enabled: true,
+  })
+}
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: userService.updateUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] })
+    },
+  })
+}
+
+export const useChangeEmailRequest = () => {
+  return useMutation({
+    mutationFn: userService.changeEmailResquet,
+  })
+}
+
+export const useChangePasswordRequest = () => {
+  return useMutation({
+    mutationFn: userService.changePasswordRequest,
   })
 }
