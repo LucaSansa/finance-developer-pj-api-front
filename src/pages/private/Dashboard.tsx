@@ -19,8 +19,6 @@ export const Dashboard = () => {
     endDate: endDate,
   })
 
-  console.log(data)
-
   const total = data?.data?.length ?? 0
 
   return (
@@ -46,7 +44,7 @@ export const Dashboard = () => {
           <button
             type="button"
             onClick={() => navigate(`/fechamento-mensal?year=${year}`)}
-            className="h-10 px-4 rounded-control bg-brand text-white text-sm font-medium hover:bg-brand-strong transition-colors whitespace-nowrap"
+            className="h-10 px-4 rounded-control bg-brand text-white text-sm font-medium hover:bg-brand-strong transition-colors whitespace-nowrap cursor-pointer"
           >
             + Novo fechamento
           </button>
@@ -77,7 +75,7 @@ export const Dashboard = () => {
           <button
             type="button"
             onClick={() => navigate(`/fechamento-mensal?year=${year}`)}
-            className="mt-2 h-10 px-4 rounded-control bg-brand text-white text-sm font-medium hover:bg-brand-strong transition-colors"
+            className="mt-2 h-10 px-4 rounded-control bg-brand text-white text-sm font-medium hover:bg-brand-strong transition-colors cursor-pointer"
           >
             + Novo fechamento
           </button>

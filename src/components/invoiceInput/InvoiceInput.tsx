@@ -1,23 +1,23 @@
-import { Controller, useForm } from "react-hook-form";
-import { currencyMask } from "../../utils/masks";
+import { Controller, useForm } from "react-hook-form"
+import { currencyMask } from "../../utils/masks"
 
 type InvoiceInputProps = {
-  addInvoice: (data: { value: string }) => void;
-};
+  addInvoice: (data: { value: string }) => void
+}
 
 type FormData = {
-  value: string;
-};
+  value: string
+}
 
 export function InvoiceInput({ addInvoice }: InvoiceInputProps) {
   const { handleSubmit, control, reset } = useForm<FormData>({
     defaultValues: { value: "" },
-  });
+  })
 
   const onSubmit = (data: FormData) => {
-    addInvoice({ value: data.value });
-    reset();
-  };
+    addInvoice({ value: data.value })
+    reset()
+  }
 
   return (
     <div className="border border-line-soft rounded-card p-4 bg-surface-inset/40">
@@ -48,10 +48,10 @@ export function InvoiceInput({ addInvoice }: InvoiceInputProps) {
       <button
         type="button"
         onClick={handleSubmit(onSubmit)}
-        className="mt-4 w-full sm:w-auto px-5 py-2.5 rounded-control bg-ink text-white text-sm font-medium hover:bg-ink-soft transition-colors"
+        className="mt-4 w-full sm:w-auto px-5 py-2.5 rounded-control bg-ink text-white text-sm font-medium hover:bg-ink-soft transition-colors cursor-pointer"
       >
         + Adicionar nota
       </button>
     </div>
-  );
+  )
 }

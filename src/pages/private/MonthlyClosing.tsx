@@ -63,8 +63,9 @@ export function MonthlyClosing() {
     none: isEditing ? savedTaxPercentage : 0,
   }[taxMode]
 
-  // A API trata a ausência da margem, então nunca enviamos valores menores que 1
-  const taxPercentageToSubmit = taxPercentage >= 1 ? taxPercentage : undefined
+  // Envia a margem manual mesmo quando for zero; nos outros modos, a API trata a ausência.
+  const taxPercentageToSubmit =
+    taxMode === "manual" || taxPercentage >= 1 ? taxPercentage : undefined
 
   function changeTaxMode(mode: TaxMode) {
     if (mode === "registered") setManualTaxInput("") // descarta o valor digitado ao voltar para a margem cadastrada
@@ -84,7 +85,6 @@ export function MonthlyClosing() {
     amountCollected,
     amountCollectedValue,
     handleSubmit,
-    handleCancel,
     resetToOriginal,
     isPending,
     isLoading,
@@ -376,14 +376,14 @@ export function MonthlyClosing() {
               <button
                 type="button"
                 onClick={handleReset}
-                className="h-10 px-4 rounded-control border border-white/15 text-sm font-medium text-white/80 hover:border-white/30 transition-colors"
+                className="h-10 px-4 rounded-control border border-white/15 text-sm font-medium text-white/80 hover:border-white/30 transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isSubmitDisabled}
-                className="h-10 px-5 rounded-control bg-brand text-white text-sm font-medium hover:bg-brand-strong disabled:opacity-50 transition-colors"
+                className="h-10 px-5 rounded-control bg-brand text-white text-sm font-medium hover:bg-brand-strong disabled:opacity-50 transition-colors cursor-pointer"
               >
                 {isPending ? "Salvando..." : "Salvar"}
               </button>
