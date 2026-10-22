@@ -1,41 +1,38 @@
-import { useState } from "react";
-import { Menu, MenuItem } from "@mui/material";
+import { useState } from "react"
+import { Menu, MenuItem } from "@mui/material"
 
 interface YearSelectorProps {
-  year: number;
-  onChangeYear: (year: number) => void;
+  year: number
+  onChangeYear: (year: number) => void
 }
 
 export function YearSelector({ year, onChangeYear }: YearSelectorProps) {
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getFullYear()
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
 
-  const years = Array.from(
-    { length: currentYear - 2020 + 1 },
-    (_, index) => 2020 + index
-  ).reverse();
+  const years = Array.from({ length: currentYear - 2020 + 1 }, (_, index) => 2020 + index).reverse()
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
   const handleSelectYear = (selectedYear: number) => {
-    onChangeYear(selectedYear);
-    handleClose();
-  };
+    onChangeYear(selectedYear)
+    handleClose()
+  }
 
   return (
     <>
       <button
         type="button"
         onClick={handleOpen}
-        className="h-10 px-4 rounded-control border border-line bg-surface text-sm font-medium text-ink flex items-center gap-2 hover:border-line-strong transition-colors"
+        className="h-10 px-4 rounded-control border border-line bg-surface text-sm font-medium text-ink flex items-center gap-2 hover:border-line-strong transition-colors cursor-pointer"
       >
         Ano: {year}
         <svg
@@ -80,5 +77,5 @@ export function YearSelector({ year, onChangeYear }: YearSelectorProps) {
         ))}
       </Menu>
     </>
-  );
+  )
 }

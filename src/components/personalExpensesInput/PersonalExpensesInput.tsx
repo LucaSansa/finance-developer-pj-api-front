@@ -1,33 +1,32 @@
-import { Controller, useForm } from "react-hook-form";
-import { currencyMask } from "../../utils/masks";
-import { SearchableSelect } from "../searchableSelect/SearchableSelect";
-import { useExpenseTypes } from "../../services/expenseTypes";
+import { Controller, useForm } from "react-hook-form"
+import { currencyMask } from "../../utils/masks"
+import { SearchableSelect } from "../searchableSelect/SearchableSelect"
+import { useExpenseTypes } from "../../services/expenseTypes"
 
 type PersonalExpensesInputProps = {
   addType: (data: {
-    name: string;
-    description: string;
-    expenseType: { id: string; name: string };
-    value: string;
-  }) => void;
-};
+    name: string
+    description: string
+    expenseType: { id: string; name: string }
+    value: string
+  }) => void
+}
 
 type FormData = {
-  name: string;
-  description: string;
-  expenseType: string;
-  value: string;
-};
+  name: string
+  description: string
+  expenseType: string
+  value: string
+}
 
 export function PersonalExpensesInput({ addType }: PersonalExpensesInputProps) {
   const { handleSubmit, control, reset } = useForm<FormData>({
     defaultValues: { name: "", description: "", expenseType: "", value: "" },
-  });
+  })
 
-  const { data: expenseTypes, isLoading } = useExpenseTypes();
+  const { data: expenseTypes, isLoading } = useExpenseTypes()
 
-  const expenseTypeOptions =
-    expenseTypes?.map((t) => ({ value: t.id, label: t.name })) ?? [];
+  const expenseTypeOptions = expenseTypes?.map((t) => ({ value: t.id, label: t.name })) ?? []
 
   const onSubmit = (data: FormData) => {
     addType({
@@ -38,15 +37,13 @@ export function PersonalExpensesInput({ addType }: PersonalExpensesInputProps) {
         id: data.expenseType,
         name: expenseTypes?.find((t) => t.id === data.expenseType)?.name ?? "",
       },
-    });
-    reset();
-  };
+    })
+    reset()
+  }
 
   return (
     <div className="border border-line-soft rounded-card p-4 bg-surface-inset/40">
-      <p className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
-        Novo gasto
-      </p>
+      <p className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">Novo gasto</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
@@ -126,10 +123,10 @@ export function PersonalExpensesInput({ addType }: PersonalExpensesInputProps) {
       <button
         type="button"
         onClick={handleSubmit(onSubmit)}
-        className="mt-4 w-full sm:w-auto px-5 py-2.5 rounded-control bg-ink text-white text-sm font-medium hover:bg-ink-soft transition-colors"
+        className="mt-4 w-full sm:w-auto px-5 py-2.5 rounded-control bg-ink text-white text-sm font-medium hover:bg-ink-soft transition-colors cursor-pointer"
       >
         + Adicionar gasto
       </button>
     </div>
-  );
+  )
 }

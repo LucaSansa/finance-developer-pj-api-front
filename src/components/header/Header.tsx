@@ -26,7 +26,7 @@ export function Header() {
     <header className="border-b border-line-soft bg-canvas">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12">
         <div className="flex justify-between items-center h-18 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
             <div className="w-9 h-9 rounded-control bg-brand text-white flex items-center justify-center font-bold text-sm shrink-0">
               FD
             </div>
