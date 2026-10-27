@@ -45,21 +45,32 @@ export function MonthlyClosing() {
 
   // O imposto salvo "bate" com a margem cadastrada se a diferença é menor que 1 centavo
   const savedTaxIsRegistered =
-    registeredTax != null && Math.abs(savedTax - (savedAmount * registeredTax) / 100) < 0.01
+    savedTax > 0 &&
+    registeredTax != null &&
+    Math.abs(savedTax - (savedAmount * registeredTax) / 100) < 0.01
 
-  // Modo padrão: ao criar, usa a margem cadastrada se existir; ao editar, só se o imposto salvo bater com ela.
+  // Ao editar, preserva a margem cadastrada quando ela explica o imposto salvo;
+  // caso contrário, usa como padrão a margem manual inferida do fechamento.
   // Enquanto o usuário não mexe nos checkboxes (chosenTaxMode vazio), vale o padrão.
   const [chosenTaxMode, setChosenTaxMode] = useState<TaxMode>()
-  const [manualTaxInput, setManualTaxInput] = useState("")
+  const [manualTaxInput, setManualTaxInput] = useState<string>()
+  const defaultManualTaxInput =
+    isEditing && !savedTaxIsRegistered ? savedTaxPercentage.toFixed(2) : ""
+  const displayedManualTaxInput = manualTaxInput ?? defaultManualTaxInput
 
-  const hasRegisteredTaxByDefault = isEditing ? savedTaxIsRegistered : registeredTax != null
-  const defaultTaxMode: TaxMode = hasRegisteredTaxByDefault ? "registered" : "none"
+  const defaultTaxMode: TaxMode = isEditing
+    ? savedTaxIsRegistered
+      ? "registered"
+      : "manual"
+    : registeredTax != null
+      ? "registered"
+      : "none"
   const taxMode = chosenTaxMode ?? defaultTaxMode
 
   // Percentual aplicado em cada modo. Sem escolha: mantém o salvo ao editar e zero ao criar.
   const taxPercentage = {
     registered: registeredTax ?? 0,
-    manual: Math.max(Number(manualTaxInput) || 0, 0),
+    manual: Math.max(Number(displayedManualTaxInput) || 0, 0),
     none: isEditing ? savedTaxPercentage : 0,
   }[taxMode]
 
@@ -95,7 +106,8 @@ export function MonthlyClosing() {
     id,
     onClose: () => navigate("/dashboard"),
     taxPercentageToSubmit,
-    hasTaxPercentageChanges: chosenTaxMode !== undefined,
+    hasTaxPercentageChanges:
+      chosenTaxMode !== undefined || manualTaxInput !== undefined,
   })
 
   // "Voltar" sai da tela (handleCancel); "Cancelar" só desfaz as alterações (handleReset):
@@ -103,7 +115,7 @@ export function MonthlyClosing() {
   function handleReset() {
     resetToOriginal()
     setChosenTaxMode(undefined)
-    setManualTaxInput("")
+    setManualTaxInput(undefined)
   }
 
   // ── Totais do resumo ──
@@ -277,7 +289,7 @@ export function MonthlyClosing() {
                         type="number"
                         min="0"
                         step="0.01"
-                        value={manualTaxInput}
+                        value={displayedManualTaxInput}
                         onChange={(event) => setManualTaxInput(event.target.value)}
                         placeholder="0"
                         className="w-28"
