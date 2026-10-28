@@ -1,16 +1,16 @@
-import { Navigate } from "react-router-dom";
-import { useSession } from "../stores/session";
+import { Navigate } from "react-router-dom"
+import { useSession } from "../stores/session"
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { session } = useSession();
+  const { session } = useSession()
 
-  if (!session?.token) {
-    return <Navigate to="/login" replace />;
+  if (!session?.access_token) {
+    return <Navigate to="/signin" replace />
   }
 
-  return <>{children}</>;
-};
+  return <>{children}</>
+}

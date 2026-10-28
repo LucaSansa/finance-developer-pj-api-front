@@ -1,0 +1,227 @@
+import { useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup"
+import toast from "react-hot-toast"
+import { currencyMask } from "../../utils/masks"
+import { convertCurrencyToNumber } from "../../utils/convertCurrencyToNumber"
+import { monthlyClosingSchema } from "../../utils/schemas/monthlyClosingSchema"
+import {
+  useCreateMonthlyClosing,
+  useGetOneMonthlyClosing,
+  useUpdateMonthlyClosing,
+} from "../../services/monthlyClosing"
+import type { ExpenseItem, InvoiceItem } from "./types"
+import type * as yup from "yup"
+
+type FormData = yup.InferType<typeof monthlyClosingSchema>
+
+type Options = {
+  year: string
+  id?: string
+  onClose: () => void
+  onError?: () => void
+  taxPercentageToSubmit?: number
+  hasTaxPercentageChanges?: boolean
+}
+
+const DEFAULT_VALUES: FormData = {
+  closingDate: "",
+  accountFee: "",
+  individualContribution: "",
+}
+
+function toCurrencyValue(cents: number) {
+  return currencyMask(String(Math.round(cents * 100)))
+}
+
+function mapApiExpenses(
+  expenses: {
+    name: string
+    description: string
+    value: number
+    expenseType: { id: string; name: string }
+  }[],
+): ExpenseItem[] {
+  return expenses.map((expense) => ({
+    name: expense.name,
+    description: expense.description,
+    expenseType: expense.expenseType,
+    value: toCurrencyValue(expense.value),
+  }))
+}
+
+function mapApiInvoices(invoices: { id: string; value: number }[]): InvoiceItem[] {
+  return invoices.map((invoice) => ({
+    id: invoice.id,
+    value: toCurrencyValue(invoice.value),
+  }))
+}
+
+export function useMonthlyClosing({
+  year,
+  id,
+  onClose,
+  onError,
+  taxPercentageToSubmit,
+  hasTaxPercentageChanges = false,
+}: Options) {
+  const form = useForm<FormData>({
+    resolver: yupResolver(monthlyClosingSchema),
+    defaultValues: DEFAULT_VALUES,
+  })
+
+  const {
+    reset,
+    formState: { isDirty, errors },
+    control,
+  } = form
+
+  const { mutate: create, isPending: isCreating } = useCreateMonthlyClosing()
+  const { mutate: update, isPending: isUpdating } = useUpdateMonthlyClosing()
+  const { data: closingData, isLoading, isError } = useGetOneMonthlyClosing(id ?? "")
+
+  const isPending = isCreating || isUpdating
+
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([])
+  const [initialExpenses, setInitialExpenses] = useState<ExpenseItem[]>([])
+  const [invoices, setInvoices] = useState<InvoiceItem[]>([])
+  const [initialInvoices, setInitialInvoices] = useState<InvoiceItem[]>([])
+  const [loadedId, setLoadedId] = useState<string | null>(null)
+
+  // Sync expenses/invoices during render when API data arrives for a new id
+  if (id && closingData && loadedId !== id) {
+    setLoadedId(id)
+    const mappedExpenses = mapApiExpenses(closingData.personalExpense)
+    setExpenses(mappedExpenses)
+    setInitialExpenses(mappedExpenses)
+    const mappedInvoices = mapApiInvoices(closingData.operacionalPj?.invoice ?? [])
+    setInvoices(mappedInvoices)
+    setInitialInvoices(mappedInvoices)
+  }
+
+  useEffect(() => {
+    if (closingData && id) {
+      reset({
+        closingDate: closingData.closingDate.split("-")[1],
+        accountFee: toCurrencyValue(closingData.operacionalPj?.accountFee ?? 0),
+        individualContribution: toCurrencyValue(
+          closingData.operacionalPj?.individualContribution ?? 0,
+        ),
+      })
+    }
+  }, [closingData, id, reset])
+
+  useEffect(() => {
+    if (isError && id) {
+      onError?.()
+      onClose()
+    }
+  }, [isError, id, onClose, onError])
+
+  function clearState() {
+    reset()
+    setExpenses([])
+    setInitialExpenses([])
+    setInvoices([])
+    setInitialInvoices([])
+    setLoadedId(null)
+  }
+
+  // reset() sem argumentos volta ao último valor definido: os dados da API ao editar, vazio ao criar
+  function resetToOriginal() {
+    reset()
+    setExpenses(initialExpenses)
+    setInvoices(initialInvoices)
+  }
+
+  function handleCancel() {
+    clearState()
+    onClose()
+  }
+
+  const amountCollectedValue = useMemo(
+    () => invoices.reduce((total, invoice) => total + convertCurrencyToNumber(invoice.value), 0),
+    [invoices],
+  )
+  const amountCollected = toCurrencyValue(amountCollectedValue)
+
+  const totalInvoiceTaxValue = closingData?.operacionalPj?.totalInvoiceTax ?? 0
+  const totalInvoiceTax = toCurrencyValue(totalInvoiceTaxValue)
+
+  const handleSubmit = form.handleSubmit((data) => {
+    const payload = {
+      closingDate: `${year}-${data.closingDate}-01`,
+      ...(taxPercentageToSubmit !== undefined ? { taxPercentage: taxPercentageToSubmit } : {}),
+      operacionalPj: {
+        accountFee: convertCurrencyToNumber(data.accountFee),
+        individualContribution: convertCurrencyToNumber(data.individualContribution),
+        invoice: invoices.map((invoice) => ({
+          value: convertCurrencyToNumber(invoice.value),
+        })),
+      },
+      personalExpense: expenses.map((expense) => ({
+        name: expense.name,
+        description: expense.description,
+        value: convertCurrencyToNumber(expense.value),
+        expenseTypeId: expense.expenseType.id,
+      })),
+    }
+
+    if (id) {
+      update(
+        { id, data: payload },
+        {
+          onSuccess: () => {
+            toast.success("Fechamento atualizado com sucesso!")
+            clearState()
+            onClose()
+          },
+        },
+      )
+    } else {
+      create(payload, {
+        onSuccess: () => {
+          toast.success("Fechamento criado com sucesso!")
+          clearState()
+          onClose()
+        },
+      })
+    }
+  })
+
+  const addExpense = (expense: ExpenseItem) => setExpenses((prev) => [...prev, expense])
+
+  const removeExpense = (index: number) => setExpenses((prev) => prev.filter((_, i) => i !== index))
+
+  const addInvoice = (invoice: InvoiceItem) => setInvoices((prev) => [...prev, invoice])
+
+  const removeInvoice = (index: number) => setInvoices((prev) => prev.filter((_, i) => i !== index))
+
+  const hasChanges =
+    isDirty ||
+    hasTaxPercentageChanges ||
+    JSON.stringify(expenses) !== JSON.stringify(initialExpenses) ||
+    JSON.stringify(invoices) !== JSON.stringify(initialInvoices)
+
+  return {
+    control,
+    errors,
+    expenses,
+    addExpense,
+    removeExpense,
+    invoices,
+    addInvoice,
+    removeInvoice,
+    amountCollected,
+    amountCollectedValue,
+    totalInvoiceTax,
+    totalInvoiceTaxValue,
+    handleSubmit,
+    handleCancel,
+    resetToOriginal,
+    isPending,
+    isLoading,
+    hasChanges,
+    toCurrencyValue,
+  }
+}

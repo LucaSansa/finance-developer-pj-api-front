@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { api } from "../../index";
 
 export interface LoginRequest {
@@ -11,7 +12,7 @@ export interface LoginResponse {
     cnpj: string;
     email: string;
   };
-  token: string;
+  access_token: string;
 }
 
 export const loginService = {
@@ -19,4 +20,10 @@ export const loginService = {
     const response = await api.post<LoginResponse>("/auth/login", data);
     return response.data;
   },
+};
+
+export const useLogin = () => {
+  return useMutation({
+    mutationFn: loginService.login,
+  });
 };

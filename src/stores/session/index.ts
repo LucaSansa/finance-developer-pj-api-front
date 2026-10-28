@@ -6,11 +6,14 @@ export const useSession = create<UseSession>()(
   persist(
     (set) => ({
       session: null,
-      createSession: (session) => set({ session }),
-      destroySession: () => set({ session: null }),
+      user: null,
+      createSession: (session, user) => set({ session, user }),
+      destroySession: () => set({ session: null, user: null }),
     }),
     {
-      name: "session-storage",
+      name: "session-user",
+      // só `user` persiste — acess_token fica apenas em memória
+      partialize: (state) => ({ user: state.user }),
     }
   )
 );

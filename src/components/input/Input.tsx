@@ -11,8 +11,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div
         className={mergeClassnames(
-          "flex flex-col gap-2",
-          props.disabled ? "opacity-35" : "opacity-100"
+          "flex flex-col gap-1.5",
+          props.disabled ? "opacity-60" : "opacity-100"
         )}
       >
         <input
@@ -20,12 +20,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           placeholder={placeholder}
           {...props}
           className={mergeClassnames(
-            "h-12.5 border border-[#D7DBE4] px-2 text-[18px] py-2.5 font-normal",
+            "h-11 rounded-control border px-3.5 text-sm text-ink font-normal bg-surface outline-none transition-colors focus:ring-2 focus:ring-brand/30 placeholder:text-ink-muted",
+            props.disabled ? "bg-surface-inset" : "",
+            error ? "border-expense" : "border-line focus:border-brand",
             className
           )}
         />
         {error && (
-          <span className="text-red-500 text-[max(12px, 0.78em)]">{error}</span>
+          <span className="text-xs text-expense">{error}</span>
         )}
       </div>
     );
