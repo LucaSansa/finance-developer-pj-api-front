@@ -134,7 +134,7 @@ O resultado fica em `dist/`. Configure `VITE_API_BASE_URL` para a URL da API usa
 
 ## API
 
-O front-end foi desenvolvido para consumir a **Finance Developer PJ API**, uma API REST em NestJS e PostgreSQL. Consulte o README da API para instruções de instalação, configuração de banco e e-mail, endpoints e ambiente Docker Compose. O backend é um projeto separado e não é iniciado pelos comandos deste repositório.
+O front-end foi desenvolvido para consumir a [Finance Developer PJ API](https://github.com/LucaSansa/finance-developer-pj-api/tree/main), uma API REST em NestJS e PostgreSQL. Consulte o README da API para instruções de instalação, configuração de banco e e-mail, endpoints e ambiente Docker Compose. O backend é um projeto separado e não é iniciado pelos comandos deste repositório.
 
 ## Licença
 
